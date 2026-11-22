@@ -1,0 +1,9 @@
+<div class="document-list">
+{% for doc in documents %}
+<article class="document-row">
+<div><strong>{{ doc.title }}</strong>{% if doc.description %}<p class="muted">{{ doc.description }}</p>{% endif %}
+{% if doc.is_video %}<video class="project-video" controls preload="none" playsinline src="{% url 'documents:document_preview' doc.pk %}">Brauzer videoni qo'llamadi. Quyidagi havoladan yuklab oling.</video>{% endif %}</div>
+<div class="action-row"><a href="{% url 'documents:document_download' doc.pk %}" class="btn btn--secondary btn--sm">Yuklab olish</a>{% if can_edit %}<form method="post" action="{% url 'documents:document_delete' doc.pk %}">{% csrf_token %}<button class="btn btn--ghost btn--sm field-error" type="submit" data-confirm="Faylni o'chirasizmi?">O'chirish</button></form>{% endif %}</div>
+</article>{% endfor %}
+</div>
+

@@ -1,0 +1,389 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="uz" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ro'yxatdan o'tish — VoltPass</title>
+    <script src="/static/js/lucide.min.js"></script>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}?v=3">
+    <style>
+        .auth-split {
+            display: grid;
+            grid-template-columns: 1fr 1.2fr;
+            min-height: 100vh;
+        }
+        .auth-brand-side {
+            background: linear-gradient(145deg, #07172f, #12355b);
+            color: #FFFFFF;
+            padding: 50px 40px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            position: relative;
+            overflow: hidden;
+        }
+        .auth-brand-side::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at 30% 40%, rgba(0, 118, 232, 0.25) 0%, transparent 60%);
+            pointer-events: none;
+        }
+        .auth-form-side {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 24px;
+            background-color: var(--bg-page);
+            overflow-y: auto;
+        }
+        .auth-card {
+            background-color: var(--glass-surface-solid);
+            border: 1px solid var(--glass-border-subtle);
+            border-radius: var(--radius-xl);
+            padding: 36px;
+            width: 100%;
+            max-width: 540px;
+            box-shadow: var(--shadow-lg);
+        }
+        .role-selector {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+            margin-bottom: 22px;
+        }
+        .role-option {
+            border: 2px solid var(--glass-border-subtle);
+            border-radius: var(--radius-lg);
+            padding: 16px 14px;
+            cursor: pointer;
+            text-align: center;
+            transition: var(--transition);
+            background: var(--glass-surface-subtle);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+        }
+        .role-option:hover {
+            border-color: var(--primary);
+            background: var(--glass-surface-hover);
+        }
+        .role-option.active {
+            border-color: var(--primary);
+            background: var(--primary-light);
+            box-shadow: 0 0 0 1px var(--primary);
+        }
+        [data-theme="dark"] .role-option.active {
+            background: rgba(0, 118, 232, 0.15);
+        }
+        .registration-errors {
+            margin: 0 0 18px;
+            padding: 14px 16px;
+            color: var(--danger);
+            background: var(--danger-bg);
+            border: 1px solid var(--danger-border);
+            border-radius: var(--radius-md);
+            font-size: .86rem;
+        }
+        .registration-errors ul,
+        .field-errors {
+            margin: 6px 0 0;
+            padding-left: 20px;
+        }
+        .field-errors {
+            padding-left: 0;
+            list-style: none;
+        }
+        .field-error {
+            display: block;
+            margin-top: 5px;
+            color: var(--danger);
+            font-size: .78rem;
+            line-height: 1.4;
+        }
+        .form-control[aria-invalid="true"] {
+            border-color: var(--danger);
+        }
+        .password-input-wrap {
+            position: relative;
+        }
+        .password-input-wrap .form-control {
+            padding-right: 44px;
+        }
+        .password-toggle {
+            position: absolute;
+            top: 50%;
+            right: 8px;
+            display: grid;
+            width: 30px;
+            height: 30px;
+            place-items: center;
+            color: var(--text-muted);
+            background: transparent;
+            border: 0;
+            cursor: pointer;
+            transform: translateY(-50%);
+        }
+        .password-toggle svg {
+            width: 17px;
+            height: 17px;
+        }
+        @media (max-width: 900px) {
+            .auth-split {
+                grid-template-columns: 1fr;
+            }
+            .auth-brand-side {
+                display: none;
+            }
+        }
+        @media (max-width: 560px) {
+            .auth-form-side {
+                align-items: flex-start;
+                padding: 20px 12px;
+            }
+            .auth-card {
+                padding: 24px 18px;
+            }
+            .auth-card .form-grid {
+                grid-template-columns: 1fr !important;
+            }
+            .role-selector {
+                gap: 8px;
+                margin-bottom: 18px;
+            }
+            .role-option {
+                padding: 12px 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="auth-split">
+        <!-- Left: Brand Showcase -->
+        <div class="auth-brand-side">
+            <div style="position:relative;z-index:2;">
+                <div style="display:flex;align-items:center;gap:12px;margin-bottom:36px;">
+                    <div style="background:linear-gradient(135deg, var(--primary), var(--secondary));width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;box-shadow:0 0 16px rgba(0,118,232,0.4);">
+                        <i data-lucide="zap" style="color:#fff;width:22px;height:22px;"></i>
+                    </div>
+                    <div>
+                        <div style="font-size:1.3rem;font-weight:800;letter-spacing:-0.02em;">VoltPass</div>
+                        <div style="font-size:0.72rem;color:var(--secondary);text-transform:uppercase;letter-spacing:0.06em;font-weight:700;">Digital Engineering SaaS</div>
+                    </div>
+                </div>
+
+                <h1 style="font-size:2rem;font-weight:800;line-height:1.25;margin-bottom:18px;letter-spacing:-0.03em;">
+                    Professional elektr raqamli pasportlari tizimi
+                </h1>
+                <p style="color:#cbd5e1;font-size:0.95rem;line-height:1.6;margin-bottom:32px;">
+                    O'zbekistondagi barcha elektr montaj ustalari va ob'ekt egalari uchun ishonchli raqamli yordamchi.
+                </p>
+
+                <div style="display:flex;flex-direction:column;gap:16px;">
+                    <div style="display:flex;align-items:center;gap:12px;font-size:0.9rem;color:#E2E8F0;">
+                        <span style="color:#4ADE80;"><i data-lucide="check-circle-2"></i></span>
+                        Shitlar, liniyalar va kabel jurnallarini oson tuzish
+                    </div>
+                    <div style="display:flex;align-items:center;gap:12px;font-size:0.9rem;color:#E2E8F0;">
+                        <span style="color:#4ADE80;"><i data-lucide="check-circle-2"></i></span>
+                        Bino va panellarga QR stikerlarni chop etish
+                    </div>
+                    <div style="display:flex;align-items:center;gap:12px;font-size:0.9rem;color:#E2E8F0;">
+                        <span style="color:#4ADE80;"><i data-lucide="check-circle-2"></i></span>
+                        Barcha montaj fotosuratlari doimiy xavfsiz arxivda
+                    </div>
+                </div>
+            </div>
+
+            <div style="position:relative;z-index:2;font-size:0.8rem;color:#cbd5e1;">
+                © 2026 VoltPass · Bepul ro'yxatdan o'tish
+            </div>
+        </div>
+
+        <!-- Right: Register Form -->
+        <div class="auth-form-side">
+            <div class="auth-card">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+                    <div>
+                        <h2 style="font-size:1.55rem;font-weight:800;letter-spacing:-0.02em;margin:0;">
+                            Akkaunt yaratish
+                        </h2>
+                        <p style="font-size:0.85rem;color:var(--text-muted);margin-top:2px;">
+                            Elektrik akkaunti to'lov tasdiqlangach faollashadi
+                        </p>
+                    </div>
+                    <button class="header-action-btn theme-toggle-btn" aria-label="Mavzuni o'zgartirish">
+                        <span class="theme-icon-moon"><i data-lucide="moon" style="width:16px;height:16px;"></i></span>
+                        <span class="theme-icon-sun" style="display:none;"><i data-lucide="sun" style="width:16px;height:16px;"></i></span>
+                    </button>
+                </div>
+
+                <form method="post" id="regForm">
+                    {% csrf_token %}
+                    {% if next_url %}<input type="hidden" name="next" value="{{ next_url }}">{% endif %}
+                    {% if form.errors %}
+                    <div class="registration-errors" role="alert">
+                        <strong>Ro'yxatdan o'tib bo'lmadi. Quyidagi xatolarni tekshiring:</strong>
+                        <ul>
+                            {% for field in form %}
+                                {% for error in field.errors %}
+                                <li>{{ field.label }}: {{ error }}</li>
+                                {% endfor %}
+                            {% endfor %}
+                            {% for error in form.non_field_errors %}
+                            <li>{{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    {% endif %}
+
+                    <!-- Role Selector -->
+                    <div class="role-selector">
+                        <label class="role-option {% if form.role.value == 'electrician' or not form.role.value %}active{% endif %}" data-role="electrician">
+                            <input type="radio" name="role" value="electrician" {% if form.role.value == 'electrician' or not form.role.value %}checked{% endif %} style="display:none;" required>
+                            <div style="color:var(--primary);"><i data-lucide="wrench" style="width:24px;height:24px;"></i></div>
+                            <div style="font-weight:700;font-size:0.95rem;color:var(--text-primary);">Elektrik Muhandis</div>
+                            <div style="font-size:0.75rem;color:var(--text-muted);">Loyiha va pasport yaratish</div>
+                        </label>
+                        <label class="role-option {% if form.role.value == 'client' %}active{% endif %}" data-role="client">
+                            <input type="radio" name="role" value="client" {% if form.role.value == 'client' %}checked{% endif %} style="display:none;" required>
+                            <div style="color:var(--success);"><i data-lucide="building" style="width:24px;height:24px;"></i></div>
+                            <div style="font-weight:700;font-size:0.95rem;color:var(--text-primary);">Buyurtmachi / Egasi</div>
+                            <div style="font-size:0.75rem;color:var(--text-muted);">Pasportni ko'rish va saqlash</div>
+                        </label>
+                    </div>
+
+                    <div class="form-grid" style="grid-template-columns:1fr 1fr;gap:12px;">
+                        <div class="form-group" style="margin-bottom:12px;">
+                            <label for="id_first_name" class="form-label required">Ism</label>
+                            <input type="text" name="first_name" id="id_first_name" class="form-control" value="{{ form.first_name.value|default_if_none:'' }}" placeholder="Ismingiz" required {% if form.first_name.errors %}aria-invalid="true"{% endif %}>
+                            {% for error in form.first_name.errors %}<small class="field-error">{{ error }}</small>{% endfor %}
+                        </div>
+                        <div class="form-group" style="margin-bottom:12px;">
+                            <label for="id_last_name" class="form-label required">Familiya</label>
+                            <input type="text" name="last_name" id="id_last_name" class="form-control" value="{{ form.last_name.value|default_if_none:'' }}" placeholder="Familiyangiz" required {% if form.last_name.errors %}aria-invalid="true"{% endif %}>
+                            {% for error in form.last_name.errors %}<small class="field-error">{{ error }}</small>{% endfor %}
+                        </div>
+                    </div>
+
+                    <div class="form-group" style="margin-bottom:12px;">
+                        <label for="id_username" class="form-label required">Foydalanuvchi nomi (Login)</label>
+                        <input type="text" name="username" id="id_username" class="form-control" value="{{ form.username.value|default_if_none:'' }}" placeholder="masalan: usta_ali" required {% if form.username.errors %}aria-invalid="true"{% endif %}>
+                        {% for error in form.username.errors %}<small class="field-error">{{ error }}</small>{% endfor %}
+                    </div>
+
+                    <div class="form-grid" style="grid-template-columns:1.2fr 1fr;gap:12px;">
+                        <div class="form-group" style="margin-bottom:12px;">
+                            <label for="id_email" class="form-label required">Email</label>
+                            <input type="email" name="email" id="id_email" class="form-control" value="{{ form.email.value|default_if_none:'' }}" placeholder="pochta@example.com" required {% if form.email.errors %}aria-invalid="true"{% endif %}>
+                            {% for error in form.email.errors %}<small class="field-error">{{ error }}</small>{% endfor %}
+                        </div>
+                        <div class="form-group" style="margin-bottom:12px;">
+                            <label for="id_phone" class="form-label">Telefon</label>
+                            <input type="text" name="phone" id="id_phone" class="form-control" value="{{ form.phone.value|default_if_none:'' }}" placeholder="+998 90 123 45 67" {% if form.phone.errors %}aria-invalid="true"{% endif %}>
+                            {% for error in form.phone.errors %}<small class="field-error">{{ error }}</small>{% endfor %}
+                        </div>
+                    </div>
+
+                    <!-- Extra Electrician Fields -->
+                    <div id="extraFields" style="display:{% if form.role.value == 'client' %}none{% else %}block{% endif %};background:var(--glass-surface-subtle);padding:14px;border-radius:var(--radius-md);border:1px solid var(--glass-border-subtle);margin-bottom:14px;">
+                        <div style="font-size:0.8rem;font-weight:700;text-transform:uppercase;color:var(--primary);margin-bottom:10px;">
+                            Elektrik mutaxassis ma'lumotlari
+                        </div>
+                        <div class="form-grid" style="grid-template-columns:1fr 1fr;gap:10px;">
+                            <div class="form-group" style="margin-bottom:0;">
+                                <label for="id_city" class="form-label">Shahar / Viloyat</label>
+                                <input type="text" name="city" id="id_city" class="form-control" value="{{ form.city.value|default_if_none:'' }}" placeholder="Toshkent" {% if form.city.errors %}aria-invalid="true"{% endif %}>
+                                {% for error in form.city.errors %}<small class="field-error">{{ error }}</small>{% endfor %}
+                            </div>
+                            <div class="form-group" style="margin-bottom:0;">
+                                <label for="id_experience" class="form-label">Tajriba (yil)</label>
+                                <input type="number" name="experience_years" id="id_experience" class="form-control" value="{{ form.experience_years.value|default_if_none:'' }}" min="0" placeholder="5" {% if form.experience_years.errors %}aria-invalid="true"{% endif %}>
+                                {% for error in form.experience_years.errors %}<small class="field-error">{{ error }}</small>{% endfor %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-grid" style="grid-template-columns:1fr 1fr;gap:12px;">
+                        <div class="form-group" style="margin-bottom:14px;">
+                            <label for="id_password1" class="form-label required">Parol</label>
+                            <div class="password-input-wrap">
+                                <input type="password" name="password1" id="id_password1" class="form-control" placeholder="Kamida 8 ta belgi" required {% if form.password1.errors %}aria-invalid="true"{% endif %}>
+                                <button type="button" class="password-toggle" aria-label="Parolni ko'rsatish" onclick="toggleRegistrationPassword('id_password1', this)">
+                                    <i data-lucide="eye"></i>
+                                </button>
+                            </div>
+                            <small style="display:block;margin-top:5px;color:var(--text-muted);font-size:.75rem;">Kamida 8 belgi. Katta harf yoki maxsus belgi shart emas; faqat keng tarqalgan yoki raqamli parol qabul qilinmaydi.</small>
+                            {% for error in form.password1.errors %}<small class="field-error">{{ error }}</small>{% endfor %}
+                        </div>
+                        <div class="form-group" style="margin-bottom:14px;">
+                            <label for="id_password2" class="form-label required">Parolni tasdiqlash</label>
+                            <div class="password-input-wrap">
+                                <input type="password" name="password2" id="id_password2" class="form-control" placeholder="Parolni qayta kiriting" required {% if form.password2.errors %}aria-invalid="true"{% endif %}>
+                                <button type="button" class="password-toggle" aria-label="Parolni ko'rsatish" onclick="toggleRegistrationPassword('id_password2', this)">
+                                    <i data-lucide="eye"></i>
+                                </button>
+                            </div>
+                            {% for error in form.password2.errors %}<small class="field-error">{{ error }}</small>{% endfor %}
+                        </div>
+                    </div>
+
+                    <div style="margin-bottom:18px;">
+                        <div style="display:flex;align-items:center;gap:10px;">
+                            <input type="checkbox" name="accepted_terms" id="termsCheck" required {% if form.accepted_terms.value %}checked{% endif %} aria-invalid="{% if form.accepted_terms.errors %}true{% else %}false{% endif %}" style="width:18px;height:18px;accent-color:var(--primary);">
+                            <label for="termsCheck" style="font-size:0.85rem;color:var(--text-secondary);cursor:pointer;">
+                                Foydalanish shartlari va maxfiylik siyosatiga roziman <span style="color:var(--danger);">*</span>
+                            </label>
+                        </div>
+                        {% for error in form.accepted_terms.errors %}<small class="field-error">{{ error }}</small>{% endfor %}
+                    </div>
+
+                    <button type="submit" class="btn btn--primary btn--lg" style="width:100%;">
+                        <i data-lucide="user-plus"></i> Ro'yxatdan o'tish
+                    </button>
+                </form>
+
+                <div style="text-align:center;margin-top:20px;font-size:0.88rem;color:var(--text-muted);">
+                    Allaqachon akkauntingiz bormi? 
+                    <a href="{% url 'accounts:login' %}" style="font-weight:600;margin-left:4px;">Kirish</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="{% static 'js/app.js' %}"></script>
+    <script>
+        function toggleRegistrationPassword(inputId, button) {
+            const input = document.getElementById(inputId);
+            const visible = input.type === "password";
+            input.type = visible ? "text" : "password";
+            button.setAttribute("aria-label", visible ? "Parolni yashirish" : "Parolni ko'rsatish");
+            button.innerHTML = '<i data-lucide="' + (visible ? "eye-off" : "eye") + '"></i>';
+            if (window.lucide) window.lucide.createIcons();
+        }
+
+        document.addEventListener("DOMContentLoaded", function() {
+            if (window.lucide) window.lucide.createIcons();
+
+            const roleOptions = document.querySelectorAll(".role-option");
+            const extraFields = document.getElementById("extraFields");
+
+            roleOptions.forEach(opt => {
+                opt.addEventListener("click", () => {
+                    roleOptions.forEach(o => o.classList.remove("active"));
+                    opt.classList.add("active");
+                    const role = opt.getAttribute("data-role");
+                    opt.querySelector('input[type="radio"]').checked = true;
+                    if (role === "electrician") {
+                        extraFields.style.display = "block";
+                    } else {
+                        extraFields.style.display = "none";
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

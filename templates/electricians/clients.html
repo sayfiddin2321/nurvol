@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block title %}Mijozlarim — NURVOLT{% endblock %}
+{% block page_title %}Mijozlarim{% endblock %}
+
+{% block content %}
+<div class="dashboard-welcome">
+    <div>
+        <h1 style="font-size:1.75rem;font-weight:800;margin:0;">Mijozlarim</h1>
+        <p class="dashboard-welcome__subtitle">
+            Faqat siz yaratgan yoki sizga so'rov yuborgan mijozlar ko'rinadi.
+        </p>
+    </div>
+    <div class="dashboard-welcome__actions">
+        <a href="{% url 'electricians:create_client' %}" class="btn btn--primary">
+            Mijoz akkaunti yaratish
+        </a>
+    </div>
+</div>
+
+<div class="card" style="padding:0;overflow:hidden;">
+    <div class="table-responsive">
+        <table class="table">
+            <thead>
+                <tr><th>Mijoz</th><th>Login</th><th>Telefon</th><th>Sizga biriktirilgan obyektlar</th></tr>
+            </thead>
+            <tbody>
+                {% for client in clients %}
+                <tr>
+                    <td>{{ client.get_full_name|default:client.username }}</td>
+                    <td>{{ client.username }}</td>
+                    <td>{{ client.phone|default:"—" }}</td>
+                    <td>{{ client.project_count }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="4" style="text-align:center;padding:32px;">
+                        Hozircha mijoz yo'q. Mijoz akkauntini yarating yoki mijoz so'rovini qabul qiling.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

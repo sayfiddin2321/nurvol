@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block title %}Bosh sahifa ishlari — NURVOLT{% endblock %}
+{% block page_title %}Bosh sahifa ishlari{% endblock %}
+
+{% block content %}
+<div class="dashboard-welcome">
+    <div>
+        <h1 style="font-size:1.75rem;font-weight:800;margin:0;">Bosh sahifa ishlari</h1>
+        <p class="dashboard-welcome__subtitle">
+            Asosiy elektrikni tanlang. Uning faqat ommaga ochiq va tugallangan loyihalari ko'rsatiladi.
+            Mijozlar soni shu loyihalarga biriktirilgan haqiqiy akkauntlar asosida hisoblanadi.
+        </p>
+    </div>
+</div>
+
+<div class="card" style="max-width:680px;">
+    <form method="post">
+        {% csrf_token %}
+        <div class="form-group">
+            <label for="{{ form.featured_electrician.id_for_label }}" class="form-label">
+                {{ form.featured_electrician.label }}
+            </label>
+            {{ form.featured_electrician }}
+            {% if form.featured_electrician.help_text %}
+            <small style="display:block;margin-top:6px;color:var(--text-muted);">
+                {{ form.featured_electrician.help_text }}
+            </small>
+            {% endif %}
+            {% for error in form.featured_electrician.errors %}
+            <small style="display:block;margin-top:6px;color:var(--danger);">{{ error }}</small>
+            {% endfor %}
+        </div>
+        {% for error in form.non_field_errors %}
+        <small style="display:block;margin-bottom:12px;color:var(--danger);">{{ error }}</small>
+        {% endfor %}
+        <div style="display:flex;gap:10px;flex-wrap:wrap;">
+            <button type="submit" class="btn btn--primary">Saqlash</button>
+            <a href="{% url 'accounts:manage_electricians' %}" class="btn btn--secondary">
+                Elektriklar ro'yxatiga qaytish
+            </a>
+        </div>
+    </form>
+</div>
+{% endblock %}

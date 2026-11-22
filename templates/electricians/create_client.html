@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}Mijoz akkaunti yaratish — NURVOLT{% endblock %}
+{% block page_title %}Mijoz akkaunti{% endblock %}
+
+{% block content %}
+<div class="simple-form-page">
+    <p class="eyebrow">MIJOZLARINGIZ</p>
+    <h1>Mijoz akkaunti yaratish</h1>
+    <p class="muted">
+        Akkaunt avtomatik faqat sizning mijozlaringiz ro'yxatiga bog'lanadi.
+        Login va vaqtinchalik parolni mijozga xavfsiz yo'l bilan bering.
+    </p>
+    <form method="post" class="card simple-form">
+        {% csrf_token %}
+        {{ form.non_field_errors }}
+        {% for field in form %}
+        <div class="form-group">
+            <label class="form-label{% if field.field.required %} required{% endif %}"
+                   for="{{ field.id_for_label }}">{{ field.label }}</label>
+            {{ field }}
+            {% if field.help_text %}<small class="form-help">{{ field.help_text }}</small>{% endif %}
+            {% for error in field.errors %}<p class="field-error" role="alert">{{ error }}</p>{% endfor %}
+        </div>
+        {% endfor %}
+        <div class="action-row">
+            <button class="btn btn--primary" type="submit">Akkaunt yaratish</button>
+            <a class="btn btn--secondary" href="{% url 'electricians:clients' %}">Bekor qilish</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

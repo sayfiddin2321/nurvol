@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Elektrik akkaunti holati — NURVOLT</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body style="min-height:100vh;display:grid;place-items:center;padding:24px;background:var(--bg-page);">
+    <main class="card" style="width:min(100%,560px);padding:32px;">
+        <a href="{% url 'home' %}" style="font-weight:800;text-decoration:none;">NURVOLT</a>
+        <h1 style="margin:24px 0 8px;">Elektrik akkaunti</h1>
+        <p style="color:var(--text-muted);">
+            Platformadagi elektriklar va loyihalardan foydalanish uchun to'lov administrator tomonidan tekshirilib,
+            akkauntingiz faollashtirilishi kerak.
+        </p>
+        <div class="action-row" style="margin:16px 0;gap:8px;flex-wrap:wrap;">
+            <a class="btn btn--secondary btn--sm" href="{% url 'accounts:login' %}">Kirish sahifasi</a>
+            <a class="btn btn--secondary btn--sm" href="{% url 'dashboard' %}">Kabinetga qaytish</a>
+        </div>
+
+        <div class="card" style="margin:22px 0;padding:16px;background:var(--glass-surface-subtle);">
+            <strong>Holat: {{ profile.get_access_status_display }}</strong>
+            {% if profile.access_status == "pending_payment" %}
+            <p style="margin-bottom:0;">To'lovni administrator bilan kelishilgan usulda amalga oshiring, so'ng quyidagi tugma orqali xabar bering.</p>
+            {% elif profile.access_status == "payment_submitted" %}
+            <p style="margin-bottom:0;">To'lov ma'lumotingiz yuborildi. Administrator tekshirishi bilan akkauntingiz faollashadi.</p>
+            {% elif profile.access_status == "rejected" %}
+            <p style="margin-bottom:0;">To'lov tasdig'i qabul qilinmadi. To'lovni tekshirib, so'rovni qayta yuborishingiz mumkin.</p>
+            {% endif %}
+        </div>
+
+        <section class="card" style="margin:22px 0;padding:18px;">
+            <h2 style="margin-top:0;">To'lov rekvizitlari</h2>
+            {% if payment_settings.card_number or payment_settings.phone or payment_settings.telegram_username %}
+            {% if payment_settings.card_number %}
+            <p><strong>Karta:</strong> <span style="font-family:var(--font-mono);">{{ payment_settings.card_number }}</span></p>
+            {% endif %}
+            {% if payment_settings.cardholder_name %}
+            <p><strong>Karta egasi:</strong> {{ payment_settings.cardholder_name }}</p>
+            {% endif %}
+            {% if payment_settings.phone %}
+            <p><strong>Telefon:</strong> <a href="tel:{{ payment_settings.phone }}">{{ payment_settings.phone }}</a></p>
+            {% endif %}
+            {% if payment_settings.telegram_username %}
+            <p><strong>Telegram:</strong>
+                <a href="https://t.me/{{ payment_settings.telegram_username }}" target="_blank" rel="noopener noreferrer">
+                    @{{ payment_settings.telegram_username }}
+                </a>
+            </p>
+            {% endif %}
+            {% else %}
+            <p style="margin-bottom:0;">Administrator to'lov ma'lumotlarini hali kiritmagan. Keyinroq qayta tekshiring.</p>
+            {% endif %}
+        </section>
+
+        {% if profile.access_status == "pending_payment" or profile.access_status == "rejected" %}
+        <form method="post" enctype="multipart/form-data" action="{% url 'accounts:submit_payment' %}">
+            {% csrf_token %}
+            <div class="card" style="margin-bottom:16px;padding:14px;background:var(--glass-surface-subtle);">
+                <strong>Tezkor tasdiqlash</strong>
+                <ol style="margin:8px 0 0;padding-left:20px;color:var(--text-muted);line-height:1.7;">
+                    <li>To‘lovni yuqoridagi karta yoki telefon orqali amalga oshiring.</li>
+                    <li>Chek rasmini quyida yuklang — u administratorga shu kabinetingizda ko‘rinadi.</li>
+                    <li>Xohlasangiz, Telegram yoki telefon orqali hozir xabar bering.</li>
+                </ol>
+            </div>
+            <div class="form-group">
+                <label for="{{ payment_form.payment_reference.id_for_label }}" class="form-label">To'lov izohi yoki tranzaksiya raqami (ixtiyoriy)</label>
+                {{ payment_form.payment_reference }}
+                {% for error in payment_form.payment_reference.errors %}<small class="field-error" style="color:var(--danger);">{{ error }}</small>{% endfor %}
+            </div>
+            <div class="form-group" style="margin-top:14px;">
+                <label for="{{ payment_form.receipt.id_for_label }}" class="form-label required">Chek rasmini yuklang</label>
+                {{ payment_form.receipt }}
+                <small style="display:block;margin-top:5px;color:var(--text-muted);">{{ payment_form.receipt.help_text }}</small>
+                {% for error in payment_form.receipt.errors %}<small class="field-error" style="color:var(--danger);">{{ error }}</small>{% endfor %}
+                <div id="receipt-preview" style="display:none;margin-top:12px;">
+                    <img id="receipt-preview-image" alt="Yuklangan chek rasmi" style="width:100%;max-height:280px;object-fit:contain;border-radius:12px;border:1px solid var(--border);">
+                </div>
+            </div>
+            <button type="submit" class="btn btn--primary" style="width:100%;margin-top:16px;">
+                Chekni adminga yuborish
+            </button>
+        </form>
+        {% endif %}
+
+        {% if profile.payment_receipt %}
+        <div style="margin-top:18px;">
+            <a href="{% url 'accounts:payment_receipt' profile.user_id %}" target="_blank" rel="noopener noreferrer">
+                Yuklangan chekni ko'rish
+            </a>
+        </div>
+        {% endif %}
+
+        {% if payment_settings.telegram_username %}
+        <a class="btn btn--secondary" style="width:100%;margin-top:16px;"
+           href="https://t.me/{{ payment_settings.telegram_username }}?text={{ telegram_message|urlencode }}"
+           target="_blank" rel="noopener noreferrer">
+            Telegramda adminga yozish
+        </a>
+        <small style="display:block;margin-top:8px;color:var(--text-muted);">
+            Telegramdan yozing va chek rasmini alohida biriktiring. Chek saytda ham administratorga ko'rinadi.
+        </small>
+        {% endif %}
+
+        {% if payment_settings.phone %}
+        <a class="btn btn--secondary" style="width:100%;margin-top:10px;" href="tel:{{ payment_settings.phone }}">
+            Hozir telefon qilib tasdiqlatish
+        </a>
+        {% endif %}
+        <p style="margin-top:14px;padding:12px;border-radius:10px;background:var(--glass-surface-subtle);color:var(--text-muted);font-size:.88rem;">
+            Odatiy tekshiruv 2–3 soatni talab qilishi mumkin. Kutishga majbur emasiz — tasdiqni tezlashtirish uchun Telegram yozing yoki telefon qiling.
+        </p>
+
+        {% if messages %}
+        <div style="margin-top:16px;">
+            {% for message in messages %}
+            <p class="msg-banner msg-banner--{{ message.tags|default:'info' }}">{{ message }}</p>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <form method="post" action="{% url 'accounts:logout' %}" style="margin-top:20px;text-align:center;">
+            {% csrf_token %}
+            <button type="submit" class="btn btn--ghost">Tizimdan chiqish</button>
+        </form>
+    </main>
+    <script>
+        const receiptInput = document.querySelector('input[name="receipt"]');
+        const preview = document.getElementById('receipt-preview');
+        const previewImage = document.getElementById('receipt-preview-image');
+        if (receiptInput) {
+            receiptInput.addEventListener('change', function () {
+                const file = this.files && this.files[0];
+                if (!file) {
+                    preview.style.display = 'none';
+                    return;
+                }
+                previewImage.src = URL.createObjectURL(file);
+                preview.style.display = 'block';
+            });
+        }
+    </script>
+</body>
+</html>

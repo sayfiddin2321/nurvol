@@ -1,0 +1,580 @@
+
+<!DOCTYPE html>
+<html lang="uz" data-theme="light">
+<head>
+<link rel="icon" type="image/svg+xml" href="/static/favicon.svg?v=2">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Boshqaruv paneli — NURVOLT</title>
+    
+    <!-- Lucide Icons -->
+    <script src="/static/js/lucide.min.js" defer></script>
+    
+    <!-- Main Design System CSS -->
+    <link rel="stylesheet" href="/static/css/style.css?v=3">
+    <link rel="stylesheet" href="/static/css/workspace.css?v=3">
+    
+</head>
+<body class="">
+    <div class="app-shell">
+        
+        <!-- Backdrop for mobile drawer -->
+        <div class="sidebar-backdrop"></div>
+
+        <!-- ==================== SIDEBAR ==================== -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <a href="/dashboard/" class="sidebar-brand">
+                    <div class="sidebar-brand-badge">
+                        <img src="/static/images/nurvolt-mark.svg" alt="" style="width:20px;height:21px;">
+                    </div>
+                    <div class="sidebar-brand-text">
+                        <span class="sidebar-brand-title">NURVOLT</span>
+                        <span class="sidebar-brand-sub">Elektrik kabineti</span>
+                    </div>
+                </a>
+                <button class="sidebar-toggle-btn" aria-label="Sidebar yig'ish/ochish" title="Yig'ish / Kengaytirish">
+                    <i data-lucide="panel-left-close"></i>
+                </button>
+            </div>
+
+            <nav class="sidebar-nav">
+                <div class="sidebar-section-title">Asosiy menyu</div>
+                <a href="/dashboard/" class="sidebar-link active">
+                    <i data-lucide="layout-dashboard"></i>
+                    <span>Bosh sahifa</span>
+                </a>
+                <a href="/projects/" class="sidebar-link ">
+                    <i data-lucide="folder-kanban"></i>
+                    <span>Obyektlar</span>
+                </a>
+
+                <div class="sidebar-section-title">Bozor & Hamkorlar</div>
+                <a href="/electricians/" class="sidebar-link ">
+                    <i data-lucide="users"></i>
+                    <span>Elektriklar bozori</span>
+                </a>
+
+                <div class="sidebar-section-title">Kabinet</div>
+                
+                
+                <a href="/electricians/me/" class="sidebar-link ">
+                    <i data-lucide="user-check"></i>
+                    <span>Elektrik profili</span>
+                </a>
+                <a href="/electricians/me/clients/" class="sidebar-link ">
+                    <i data-lucide="contact-round"></i>
+                    <span>Mijozlarim</span>
+                </a>
+                <a href="/electricians/inquiries/" class="sidebar-link ">
+                    <i data-lucide="inbox"></i>
+                    <span>Mijoz so'rovlari</span>
+                    
+                </a>
+                
+                <a href="/accounts/settings/" class="sidebar-link ">
+                    <i data-lucide="settings"></i>
+                    <span>Sozlamalar</span>
+                </a>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="sidebar-user-avatar">
+                    A
+                </div>
+                <div class="sidebar-user-info">
+                    <div class="sidebar-user-name">Ali Valiyev</div>
+                    <div class="sidebar-user-role">
+                        <i data-lucide="shield-check" style="width:13px;height:13px;"></i>
+                        Bosh elektrik
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- ==================== MAIN CONTENT WRAPPER ==================== -->
+        <div class="main-wrapper">
+            <!-- Header Bar -->
+            <header class="header">
+                <div class="header-left">
+                    <button class="header-mobile-toggle btn--ghost" aria-label="Menyuni ochish">
+                        <i data-lucide="menu"></i>
+                    </button>
+                    <div class="header-breadcrumbs">
+                        <a href="/dashboard/"><i data-lucide="home" style="width:15px;height:15px;"></i></a>
+                        <span class="sep">/</span>
+                        <span class="current">Dashboard</span>
+                    </div>
+                </div>
+
+                <div class="header-right">
+                    <form class="header-search" method="get" action="/projects/" role="search">
+                        <i data-lucide="search" class="search-icon"></i>
+                        <input type="search" name="q" placeholder="Obyekt nomi yoki manzil..." aria-label="Obyekt qidirish">
+                    </form>
+
+                    <!-- Theme Toggle -->
+                    <button class="header-action-btn theme-toggle-btn" aria-label="Mavzuni o'zgartirish" title="Tun / Kun rejimi">
+                        <span class="theme-icon-moon"><i data-lucide="moon"></i></span>
+                        <span class="theme-icon-sun" style="display:none;"><i data-lucide="sun"></i></span>
+                    </button>
+
+                    <!-- User Avatar & Dropdown -->
+                    <div class="header-user-menu">
+                        <button class="header-user-trigger" data-dropdown-toggle="user-dropdown-menu" aria-label="Foydalanuvchi menyusi">
+                            <div class="header-avatar">
+                                A
+                            </div>
+                            <i data-lucide="chevron-down" style="width:16px;height:16px;color:var(--text-muted);"></i>
+                        </button>
+                        <div class="header-user-dropdown" id="user-dropdown-menu">
+                            <div style="padding: 8px 12px; border-bottom: 1px solid var(--border-color); margin-bottom: 4px;">
+                                <div style="font-weight: 600; font-size: 0.9rem; color: var(--text-primary);">Ali Valiyev</div>
+                                <div style="font-size: 0.75rem; color: var(--text-muted);">Foydalanuvchi</div>
+                            </div>
+                            
+                            <a href="/electricians/me/" class="dropdown-item">
+                                <i data-lucide="user"></i> Elektrik profili
+                            </a>
+                            
+                            <a href="/accounts/settings/" class="dropdown-item">
+                                <i data-lucide="settings"></i> Sozlamalar
+                            </a>
+                            <div class="dropdown-divider"></div>
+                            <form method="post" action="/accounts/logout/">
+                                <input type="hidden" name="csrfmiddlewaretoken" value="MxovvLT1OQlS0EETKUTQKyP4MfgHAUpmqdnWXE7dC7vdNaTT4zDa79trHecnMCSw">
+                                <button type="submit" class="dropdown-item" style="color:var(--status-danger);">
+                                    <i data-lucide="log-out"></i> Tizimdan chiqish
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Alerts / Messages -->
+            
+
+            <!-- Main Content Container -->
+            <main class="page-container">
+                
+<!-- Welcome & Action Header -->
+<div class="dashboard-welcome">
+    <div>
+        <div style="display:flex;align-items:center;gap:10px;">
+            <h1 style="font-size:1.75rem;font-weight:800;letter-spacing:-0.03em;margin:0;">
+                Salom, Ali 👋
+            </h1>
+            <span class="badge badge--cyan">
+                <i data-lucide="zap" style="width:13px;height:13px;"></i>
+                Bosh Elektromontyor
+            </span>
+        </div>
+        <p class="dashboard-welcome__subtitle">
+            NURVOLT muhandislik tizimining bugungi operatsion holati va statistikasi
+        </p>
+    </div>
+    
+    <div class="dashboard-welcome__actions">
+        
+        <a href="/projects/" class="btn btn--secondary">
+            <i data-lucide="list-filter"></i> Loyihalar arxivi
+        </a>
+        
+        <a href="/projects/create/" class="btn btn--primary">
+            <i data-lucide="plus-circle"></i> Yangi elektr pasporti
+        </a>
+        
+    </div>
+</div>
+
+<!-- ==================== 1. KPI STATISTIC CARDS ==================== -->
+<div class="stats-grid">
+    <!-- Card 1: Jami loyihalar -->
+    <div class="stat-card">
+        <div class="stat-card-header">
+            <span class="stat-card-title">Jami loyihalar</span>
+            <div class="stat-card-icon">
+                <i data-lucide="folder-kanban"></i>
+            </div>
+        </div>
+        <div class="stat-card-value">2</div>
+        <div class="stat-card-meta">
+            <span class="stat-card-trend-up">
+                <i data-lucide="trending-up" style="width:14px;height:14px;"></i> Barcha ob'ektlar
+            </span>
+            <span style="color:var(--text-muted);">· tizimda qayd etilgan</span>
+        </div>
+    </div>
+
+    <!-- Card 2: Jarayonda -->
+    <div class="stat-card">
+        <div class="stat-card-header">
+            <span class="stat-card-title">Jarayondagi montaj</span>
+            <div class="stat-card-icon" style="background-color:var(--status-warning-bg);color:var(--status-warning);">
+                <i data-lucide="activity"></i>
+            </div>
+        </div>
+        <div class="stat-card-value" style="color:var(--status-warning);">0</div>
+        <div class="stat-card-meta">
+            <span class="badge badge--warning">Faol montaj bosqichida</span>
+        </div>
+    </div>
+
+    <!-- Card 3: Tugallangan -->
+    <div class="stat-card">
+        <div class="stat-card-header">
+            <span class="stat-card-title">Tugallangan pasportlar</span>
+            <div class="stat-card-icon" style="background-color:var(--status-active-bg);color:var(--status-active);">
+                <i data-lucide="check-circle-2"></i>
+            </div>
+        </div>
+        <div class="stat-card-value" style="color:var(--status-active);">0</div>
+        <div class="stat-card-meta">
+            <span class="badge badge--success">QR pasport berilgan</span>
+        </div>
+    </div>
+
+    <!-- Card 4: Qoralamalar -->
+    <div class="stat-card">
+        <div class="stat-card-header">
+            <span class="stat-card-title">Qoralama holatda</span>
+            <div class="stat-card-icon" style="background-color:var(--status-neutral-bg);color:var(--status-neutral);">
+                <i data-lucide="file-edit"></i>
+            </div>
+        </div>
+        <div class="stat-card-value" style="color:var(--text-secondary);">2</div>
+        <div class="stat-card-meta">
+            <span style="color:var(--text-muted);font-size:0.82rem;">Loyiha kiritilmoqda</span>
+        </div>
+    </div>
+</div>
+
+<!-- ==================== 2. MAIN SPLIT SECTION ==================== -->
+<div class="dashboard-main-grid">
+    
+    <!-- Left: So'nggi loyihalar jadvali -->
+    <div class="card" style="padding:0;overflow:hidden;">
+        <div style="padding:20px 24px;border-bottom:1px solid var(--border-color);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
+            <div>
+                <h2 style="font-size:1.15rem;font-weight:700;margin:0;display:flex;align-items:center;gap:10px;">
+                    <i data-lucide="clock" style="color:var(--blue-500);width:20px;height:20px;"></i>
+                    So'nggi elektr pasportlari
+                </h2>
+                <p style="font-size:0.83rem;color:var(--text-muted);margin-top:2px;">
+                    Eng oxirgi kiritilgan va yangilangan ob'ektlar
+                </p>
+            </div>
+            <a href="/projects/" class="btn btn--sm btn--ghost" style="color:var(--blue-500);">
+                Barcha loyihalar <i data-lucide="arrow-right" style="width:14px;height:14px;"></i>
+            </a>
+        </div>
+
+                                <div class="dashboard-project-cards">
+                                    
+                                    <a href="/projects/2/" class="dashboard-project-card">
+                                        <div class="dashboard-project-card__top">
+                                            <span class="dashboard-project-card__icon"><i data-lucide="building-2"></i></span>
+                                            <span class="badge badge--draft"><span class="badge-dot"></span>Qoralama</span>
+                                        </div>
+                                        <strong>Brauzer sinovi tahrirlandi</strong>
+                                        <span class="dashboard-project-card__address">Manzil kiritilmagan</span>
+                                        <span class="dashboard-project-card__meta">Boshqa <span aria-hidden="true">·</span> 21.11.2026</span>
+                                        <span class="dashboard-project-card__link">Pasportni ochish <i data-lucide="arrow-up-right"></i></span>
+                                    </a>
+                                    
+                                    <a href="/projects/1/" class="dashboard-project-card">
+                                        <div class="dashboard-project-card__top">
+                                            <span class="dashboard-project-card__icon"><i data-lucide="building-2"></i></span>
+                                            <span class="badge badge--draft"><span class="badge-dot"></span>Qoralama</span>
+                                        </div>
+                                        <strong>Chilonzor xonadoni</strong>
+                                        <span class="dashboard-project-card__address">Toshkent, Chilonzor 12-mavze</span>
+                                        <span class="dashboard-project-card__meta">Uy <span aria-hidden="true">·</span> 21.11.2026</span>
+                                        <span class="dashboard-project-card__link">Pasportni ochish <i data-lucide="arrow-up-right"></i></span>
+                                    </a>
+                                    
+                                </div>
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Loyiha nomi & Ob'ekt</th>
+                        <th>Bino turi</th>
+                        <th>Holati</th>
+                        <th>Sana</th>
+                        <th style="text-align:right;">Amallar</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    
+                    <tr>
+                        <td>
+                            <div style="display:flex;align-items:center;gap:12px;">
+                                <div style="width:36px;height:36px;border-radius:8px;background:var(--blue-50);color:var(--blue-500);display:flex;align-items:center;justify-content:center;font-weight:700;">
+                                    <i data-lucide="building-2" style="width:18px;height:18px;"></i>
+                                </div>
+                                <div>
+                                    <a href="/projects/2/" style="font-weight:700;color:var(--text-primary);display:block;">
+                                        Brauzer sinovi tahrirlandi
+                                    </a>
+                                    <span style="font-size:0.78rem;color:var(--text-muted);">
+                                        Manzil kiritilmagan
+                                    </span>
+                                </div>
+
+                            </div>
+                        </td>
+                        <td>
+                            <span class="table-tech-code">Boshqa</span>
+                        </td>
+                        <td>
+                            <span class="badge badge--draft">
+                                <span class="badge-dot"></span>
+                                Qoralama
+                            </span>
+                        </td>
+                        <td style="font-size:0.85rem;color:var(--text-muted);font-family:var(--font-mono);">
+                            21.11.2026
+                        </td>
+                        <td style="text-align:right;">
+                            <a href="/projects/2/" class="btn btn--sm btn--secondary" title="Pasportni ochish">
+                                Texnik pasport <i data-lucide="chevron-right" style="width:14px;height:14px;"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    
+                    <tr>
+                        <td>
+                            <div style="display:flex;align-items:center;gap:12px;">
+                                <div style="width:36px;height:36px;border-radius:8px;background:var(--blue-50);color:var(--blue-500);display:flex;align-items:center;justify-content:center;font-weight:700;">
+                                    <i data-lucide="building-2" style="width:18px;height:18px;"></i>
+                                </div>
+                                <div>
+                                    <a href="/projects/1/" style="font-weight:700;color:var(--text-primary);display:block;">
+                                        Chilonzor xonadoni
+                                    </a>
+                                    <span style="font-size:0.78rem;color:var(--text-muted);">
+                                        Toshkent, Chilonzor 12-mavze
+                                    </span>
+                                </div>
+
+                            </div>
+                        </td>
+                        <td>
+                            <span class="table-tech-code">Uy</span>
+                        </td>
+                        <td>
+                            <span class="badge badge--draft">
+                                <span class="badge-dot"></span>
+                                Qoralama
+                            </span>
+                        </td>
+                        <td style="font-size:0.85rem;color:var(--text-muted);font-family:var(--font-mono);">
+                            21.11.2026
+                        </td>
+                        <td style="text-align:right;">
+                            <a href="/projects/1/" class="btn btn--sm btn--secondary" title="Pasportni ochish">
+                                Texnik pasport <i data-lucide="chevron-right" style="width:14px;height:14px;"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Right: Tezkor muhandislik amallari & QR Skaner grafigi -->
+    <div style="display:flex;flex-direction:column;gap:24px;">
+        
+        <!-- Tezkor amallar -->
+        <div class="card">
+            <h2 class="card-title" style="margin-bottom:14px;">
+                <i data-lucide="sparkles" style="color:var(--cyan-500);width:18px;height:18px;"></i>
+                Tezkor amallar
+            </h2>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+                
+                <a href="/projects/create/" class="btn btn--secondary" style="height:86px;flex-direction:column;text-align:center;padding:12px 8px;gap:6px;">
+                    <i data-lucide="folder-plus" style="width:24px;height:24px;color:var(--blue-500);"></i>
+                    <span style="font-size:0.82rem;">Yangi loyiha</span>
+                </a>
+                
+
+                
+                <a href="/qr/projects/2/manage/" class="btn btn--secondary" style="height:86px;flex-direction:column;text-align:center;padding:12px 8px;gap:6px;">
+                    <i data-lucide="qr-code" style="width:24px;height:24px;color:var(--cyan-500);"></i>
+                    <span style="font-size:0.82rem;">QR kod markazi</span>
+                </a>
+                
+
+                
+                <a href="/electricians/me/" class="btn btn--secondary" style="height:86px;flex-direction:column;text-align:center;padding:12px 8px;gap:6px;">
+                    <i data-lucide="award" style="width:24px;height:24px;color:var(--success);"></i>
+                    <span style="font-size:0.82rem;">Mutaxassis profili</span>
+                </a>
+                <a href="/electricians/inquiries/" class="btn btn--secondary" style="height:86px;flex-direction:column;text-align:center;padding:12px 8px;gap:6px;">
+                    <i data-lucide="inbox" style="width:24px;height:24px;color:var(--blue-500);"></i>
+                    <span style="font-size:0.82rem;">Mijoz so'rovlari</span>
+                </a>
+                
+
+                <a href="/accounts/settings/" class="btn btn--secondary" style="height:86px;flex-direction:column;text-align:center;padding:12px 8px;gap:6px;">
+                    <i data-lucide="sliders" style="width:24px;height:24px;color:var(--text-muted);"></i>
+                    <span style="font-size:0.82rem;">Tizim sozlamalari</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- QR Faollik (Oxirgi 7 kun) -->
+        <div class="card">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+                <div>
+                    <h2 class="card-title" style="margin:0;">
+                        <i data-lucide="smartphone" style="color:var(--blue-500);width:18px;height:18px;"></i>
+                        QR skanerlar auditi
+                    </h2>
+                    <div style="font-size:0.8rem;color:var(--text-muted);margin-top:2px;">Oxirgi 7 kunlik skanerlashlar</div>
+                </div>
+                <span class="badge badge--cyan" style="font-family:var(--font-mono);">
+                    4 skan
+                </span>
+            </div>
+
+            <!-- Mini Bar Chart -->
+            <div style="display:flex;align-items:flex-end;gap:10px;height:130px;padding:10px 0 0;border-bottom:1px solid var(--border-color);">
+                
+                <div style="flex:1;display:flex;flex-direction:column;align-items:center;height:100%;justify-content:flex-end;gap:6px;">
+                    <span style="font-size:0.72rem;font-weight:700;color:var(--text-muted);font-family:var(--font-mono);">
+                        0
+                    </span>
+                    <div style="width:100%;max-width:26px;background:linear-gradient(180deg, var(--blue-500), var(--cyan-500));height:8%;border-radius:6px 6px 0 0;box-shadow:0 2px 6px rgba(0,118,232,0.3);transition:height 0.3s ease;" title="15-Noy: 0 skan"></div>
+                    <span style="font-size:0.72rem;font-weight:600;color:var(--text-secondary);text-transform:uppercase;">
+                        Sun
+                    </span>
+                </div>
+                
+                <div style="flex:1;display:flex;flex-direction:column;align-items:center;height:100%;justify-content:flex-end;gap:6px;">
+                    <span style="font-size:0.72rem;font-weight:700;color:var(--text-muted);font-family:var(--font-mono);">
+                        0
+                    </span>
+                    <div style="width:100%;max-width:26px;background:linear-gradient(180deg, var(--blue-500), var(--cyan-500));height:8%;border-radius:6px 6px 0 0;box-shadow:0 2px 6px rgba(0,118,232,0.3);transition:height 0.3s ease;" title="16-Noy: 0 skan"></div>
+                    <span style="font-size:0.72rem;font-weight:600;color:var(--text-secondary);text-transform:uppercase;">
+                        Mon
+                    </span>
+                </div>
+                
+                <div style="flex:1;display:flex;flex-direction:column;align-items:center;height:100%;justify-content:flex-end;gap:6px;">
+                    <span style="font-size:0.72rem;font-weight:700;color:var(--text-muted);font-family:var(--font-mono);">
+                        0
+                    </span>
+                    <div style="width:100%;max-width:26px;background:linear-gradient(180deg, var(--blue-500), var(--cyan-500));height:8%;border-radius:6px 6px 0 0;box-shadow:0 2px 6px rgba(0,118,232,0.3);transition:height 0.3s ease;" title="17-Noy: 0 skan"></div>
+                    <span style="font-size:0.72rem;font-weight:600;color:var(--text-secondary);text-transform:uppercase;">
+                        Tue
+                    </span>
+                </div>
+                
+                <div style="flex:1;display:flex;flex-direction:column;align-items:center;height:100%;justify-content:flex-end;gap:6px;">
+                    <span style="font-size:0.72rem;font-weight:700;color:var(--text-muted);font-family:var(--font-mono);">
+                        0
+                    </span>
+                    <div style="width:100%;max-width:26px;background:linear-gradient(180deg, var(--blue-500), var(--cyan-500));height:8%;border-radius:6px 6px 0 0;box-shadow:0 2px 6px rgba(0,118,232,0.3);transition:height 0.3s ease;" title="18-Noy: 0 skan"></div>
+                    <span style="font-size:0.72rem;font-weight:600;color:var(--text-secondary);text-transform:uppercase;">
+                        Wed
+                    </span>
+                </div>
+                
+                <div style="flex:1;display:flex;flex-direction:column;align-items:center;height:100%;justify-content:flex-end;gap:6px;">
+                    <span style="font-size:0.72rem;font-weight:700;color:var(--text-muted);font-family:var(--font-mono);">
+                        0
+                    </span>
+                    <div style="width:100%;max-width:26px;background:linear-gradient(180deg, var(--blue-500), var(--cyan-500));height:8%;border-radius:6px 6px 0 0;box-shadow:0 2px 6px rgba(0,118,232,0.3);transition:height 0.3s ease;" title="19-Noy: 0 skan"></div>
+                    <span style="font-size:0.72rem;font-weight:600;color:var(--text-secondary);text-transform:uppercase;">
+                        Thu
+                    </span>
+                </div>
+                
+                <div style="flex:1;display:flex;flex-direction:column;align-items:center;height:100%;justify-content:flex-end;gap:6px;">
+                    <span style="font-size:0.72rem;font-weight:700;color:var(--text-muted);font-family:var(--font-mono);">
+                        0
+                    </span>
+                    <div style="width:100%;max-width:26px;background:linear-gradient(180deg, var(--blue-500), var(--cyan-500));height:8%;border-radius:6px 6px 0 0;box-shadow:0 2px 6px rgba(0,118,232,0.3);transition:height 0.3s ease;" title="20-Noy: 0 skan"></div>
+                    <span style="font-size:0.72rem;font-weight:600;color:var(--text-secondary);text-transform:uppercase;">
+                        Fri
+                    </span>
+                </div>
+                
+                <div style="flex:1;display:flex;flex-direction:column;align-items:center;height:100%;justify-content:flex-end;gap:6px;">
+                    <span style="font-size:0.72rem;font-weight:700;color:var(--text-muted);font-family:var(--font-mono);">
+                        4
+                    </span>
+                    <div style="width:100%;max-width:26px;background:linear-gradient(180deg, var(--blue-500), var(--cyan-500));height:100%;border-radius:6px 6px 0 0;box-shadow:0 2px 6px rgba(0,118,232,0.3);transition:height 0.3s ease;" title="21-Noy: 4 skan"></div>
+                    <span style="font-size:0.72rem;font-weight:600;color:var(--text-secondary);text-transform:uppercase;">
+                        Sat
+                    </span>
+                </div>
+                
+            </div>
+
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-top:12px;font-size:0.78rem;color:var(--text-muted);">
+                <span>Bino va shit QR kodlari orqali</span>
+                <span style="color:var(--status-active);font-weight:600;display:inline-flex;align-items:center;gap:4px;">
+                    <i data-lucide="shield-check" style="width:12px;height:12px;"></i> Real vaqt monitoringi
+                </span>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
+            </main>
+
+            <!-- Elektrik kabineti Footer -->
+            <footer class="app-footer">
+                <div>
+                    <strong>NURVOLT</strong> · Electrical Digital Passport & Engineering Platform © 2026
+                </div>
+                <div>
+                    <span style="display:inline-flex;align-items:center;gap:6px;">
+                        <span style="width:8px;height:8px;border-radius:50%;background:var(--status-active);"></span>
+                        Tizim faol va himoyalangan
+                    </span>
+                </div>
+            </footer>
+        </div>
+        <nav class="mobile-bottom-nav" aria-label="Asosiy menyu">
+            <a href="/dashboard/" class="mobile-bottom-nav__item active" aria-current="page">
+                <i data-lucide="layout-dashboard"></i>
+                <span>Bosh sahifa</span>
+            </a>
+            <a href="/projects/" class="mobile-bottom-nav__item " >
+                <i data-lucide="folder-kanban"></i>
+                <span>Obyektlar</span>
+            </a>
+            <a href="/electricians/me/" class="mobile-bottom-nav__item " >
+                <i data-lucide="user-round"></i>
+                <span>Profil</span>
+            </a>
+            <a href="/accounts/settings/" class="mobile-bottom-nav__item " >
+                <i data-lucide="settings-2"></i>
+                <span>Sozlamalar</span>
+            </a>
+        </nav>
+        
+    </div>
+
+    <!-- Main JavaScript Core -->
+    <script src="/static/js/app.js?v=3"></script>
+    <script src="/static/js/gallery.js?v=3" defer></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            if (window.lucide) {
+                window.lucide.createIcons();
+            }
+        });
+    </script>
+    
+</body>
+</html>

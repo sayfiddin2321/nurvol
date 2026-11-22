@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+{% block title %}Qurilma kiritish — {{ project.name }} | VoltPass{% endblock %}
+{% block page_title %}Qurilma qo'shish{% endblock %}
+
+{% block content %}
+<div style="max-width:680px;margin:0 auto;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+        <div>
+            <h1 style="font-size:1.6rem;font-weight:800;letter-spacing:-0.03em;margin:0;">
+                Elektr qurilmasi / Nuqtasi
+            </h1>
+            <p style="color:var(--text-muted);font-size:0.9rem;margin-top:2px;">
+                Ob'ekt: <strong style="color:var(--text-primary);">{{ project.name }}</strong>
+            </p>
+        </div>
+        <a href="{% url 'projects:detail' project.pk %}#tab-devices" class="btn btn--secondary btn--sm">
+            <i data-lucide="arrow-left"></i> Bekor qilish
+        </a>
+    </div>
+
+    <div class="card">
+        <form method="post">
+            {% csrf_token %}
+            {% if form.non_field_errors %}
+            <div class="msg-banner msg-banner--danger" style="margin-bottom:18px;">
+                <i data-lucide="alert-circle"></i>
+                <span>{{ form.non_field_errors }}</span>
+            </div>
+            {% endif %}
+
+            <div class="form-group">
+                <label for="{{ form.name.id_for_label }}" class="form-label required">Qurilma nomi</label>
+                {{ form.name }}
+                <div class="form-text">Masalan: 2 talik rozetka bloki, lyustra, 2 klavishli viklyuchatel</div>
+                {% for error in form.name.errors %}<div class="form-text" style="color:var(--status-danger);">{{ error }}</div>{% endfor %}
+            </div>
+
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="{{ form.device_type.id_for_label }}" class="form-label required">Qurilma toifasi</label>
+                    {{ form.device_type }}
+                    {% for error in form.device_type.errors %}<div class="form-text" style="color:var(--status-danger);">{{ error }}</div>{% endfor %}
+                </div>
+                <div class="form-group">
+                    <label for="{{ form.identifier.id_for_label }}" class="form-label">Identifikator / Markirovkasi</label>
+                    {{ form.identifier }}
+                    <div class="form-text">Masalan: R-12, SW-03</div>
+                    {% for error in form.identifier.errors %}<div class="form-text" style="color:var(--status-danger);">{{ error }}</div>{% endfor %}
+                </div>
+            </div>
+
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="{{ form.room.id_for_label }}" class="form-label">Xona</label>
+                    {{ form.room }}
+                    {% for error in form.room.errors %}<div class="form-text" style="color:var(--status-danger);">{{ error }}</div>{% endfor %}
+                </div>
+                <div class="form-group">
+                    <label for="{{ form.circuit.id_for_label }}" class="form-label">Tegishli liniya</label>
+                    {{ form.circuit }}
+                    {% for error in form.circuit.errors %}<div class="form-text" style="color:var(--status-danger);">{{ error }}</div>{% endfor %}
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="{{ form.installed_at.id_for_label }}" class="form-label">O'rnatilgan sana</label>
+                {{ form.installed_at }}
+                {% for error in form.installed_at.errors %}<div class="form-text" style="color:var(--status-danger);">{{ error }}</div>{% endfor %}
+            </div>
+
+            <div class="form-group">
+                <label for="{{ form.description.id_for_label }}" class="form-label">Qo'shimcha tavsif</label>
+                {{ form.description }}
+                {% for error in form.description.errors %}<div class="form-text" style="color:var(--status-danger);">{{ error }}</div>{% endfor %}
+            </div>
+
+            <div style="background:var(--bg-card-subtle);padding:14px;border-radius:var(--radius-md);border:1px solid var(--border-color);margin-bottom:20px;display:flex;align-items:center;gap:10px;">
+                {{ form.is_public }}
+                <label for="{{ form.is_public.id_for_label }}" style="font-weight:600;font-size:0.9rem;cursor:pointer;">
+                    Ommaviy QR pasportda ko'rsatish
+                </label>
+            </div>
+
+            <div style="display:flex;justify-content:flex-end;gap:12px;border-top:1px solid var(--border-color);padding-top:16px;">
+                <a href="{% url 'projects:detail' project.pk %}#tab-devices" class="btn btn--secondary">Bekor qilish</a>
+                <button type="submit" class="btn btn--primary">
+                    <i data-lucide="check"></i> Qurilmani saqlash
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

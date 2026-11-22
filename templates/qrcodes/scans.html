@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+{% block title %}QR Skanerlar Auditi — {{ project.name }} | VoltPass{% endblock %}
+{% block page_title %}QR Skanerlar Auditi{% endblock %}
+
+{% block content %}
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;flex-wrap:wrap;gap:12px;">
+    <div>
+        <h1 style="font-size:1.75rem;font-weight:800;letter-spacing:-0.03em;margin:0;">
+            QR Skanerlar Auditi va Monitoring
+        </h1>
+        <p style="color:var(--text-muted);font-size:0.92rem;margin-top:4px;">
+            Ob'ekt: <strong style="color:var(--text-primary);">{{ project.name }}</strong> · Tashriflar tarixi
+        </p>
+    </div>
+    <a href="{% url 'qrcodes:manage' project.pk %}" class="btn btn--secondary">
+        <i data-lucide="arrow-left"></i> QR markaziga qaytish
+    </a>
+</div>
+
+<!-- QR Summary Cards -->
+<div class="stats-grid" style="margin-bottom:24px;">
+    {% for qr in scan_counts %}
+    <div class="stat-card">
+        <div class="stat-card-header">
+            <span class="stat-card-title">{% if qr.panel %}{{ qr.panel.name }} ({{ qr.panel.panel_code }}){% else %}Bino Umumiy Pasporti{% endif %}</span>
+            <div class="stat-card-icon">
+                <i data-lucide="qr-code"></i>
+            </div>
+        </div>
+        <div class="stat-card-value" style="color:var(--blue-500);">{{ qr.scan_count }}</div>
+        <div class="stat-card-meta">
+            <span class="badge badge--cyan">Muvaffaqiyatli skan</span>
+        </div>
+    </div>
+    {% empty %}
+    <div class="card" style="grid-column:1/-1;text-align:center;padding:24px;color:var(--text-muted);">
+        Loyihada QR kodlar mavjud emas.
+    </div>
+    {% endfor %}
+</div>
+
+<!-- Scans Detailed Log Table -->
+<div class="card" style="padding:0;overflow:hidden;">
+    <div style="padding:20px 24px;border-bottom:1px solid var(--border-color);">
+        <h2 class="card-title" style="margin:0;">
+            <i data-lucide="history" style="color:var(--blue-500);"></i>
+            Skanerlashlar jurnali
+        </h2>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>QR Nomi</th>
+                    <th>Foydalanuvchi Qurilmasi (User-Agent)</th>
+                    <th>Manba (Referer)</th>
+                    <th style="text-align:right;">Skanerlangan vaqt</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for scan in scans %}
+                <tr>
+                    <td>
+                        <div style="font-weight:700;color:var(--text-primary);">
+                            {% if scan.qr_code.panel %}
+                                <span class="table-tech-code">{{ scan.qr_code.panel.panel_code }}</span> {{ scan.qr_code.panel.name }}
+                            {% else %}
+                                <span class="badge badge--cyan">Bino Pasporti</span>
+                            {% endif %}
+                        </div>
+                    </td>
+                    <td style="font-size:0.83rem;color:var(--text-secondary);max-width:340px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="{{ scan.user_agent }}">
+                        <i data-lucide="smartphone" style="width:14px;height:14px;vertical-align:-2px;color:var(--text-muted);"></i>
+                        {{ scan.user_agent|default:"Noma'lum brauzer" }}
+                    </td>
+                    <td style="font-size:0.83rem;color:var(--text-muted);">
+                        {{ scan.referer|default:"To'g'ridan-to'g'ri skanerlash" }}
+                    </td>
+                    <td style="text-align:right;font-family:var(--font-mono);font-size:0.85rem;color:var(--text-primary);font-weight:600;">
+                        {{ scan.scanned_at|date:"d.m.Y H:i:s" }}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="4">
+                        <div class="empty-state">
+                            <div class="empty-state-icon"><i data-lucide="smartphone"></i></div>
+                            <div class="empty-state-title">Hali skanerlashlar qayd etilmagan</div>
+                            <div class="empty-state-text">QR yorliqni chop etib ob'ektga yopishtiring va telefon orqali skaner qilib ko'ring.</div>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

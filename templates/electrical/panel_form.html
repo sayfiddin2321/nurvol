@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+{% block title %}Elektr shiti (panel) — {{ project.name }} | VoltPass{% endblock %}
+{% block page_title %}Elektr shiti qo'shish / tahrirlash{% endblock %}
+
+{% block content %}
+<div style="max-width:680px;margin:0 auto;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+        <div>
+            <h1 style="font-size:1.6rem;font-weight:800;letter-spacing:-0.03em;margin:0;">
+                Elektr shiti (Panel)
+            </h1>
+            <p style="color:var(--text-muted);font-size:0.9rem;margin-top:2px;">
+                Ob'ekt: <strong style="color:var(--text-primary);">{{ project.name }}</strong>
+            </p>
+        </div>
+        <a href="{% url 'projects:detail' project.pk %}#tab-panels" class="btn btn--secondary btn--sm">
+            <i data-lucide="arrow-left"></i> Bekor qilish
+        </a>
+    </div>
+
+    <div class="card">
+        <form method="post">
+            {% csrf_token %}
+            {% if form.non_field_errors %}
+            <div class="msg-banner msg-banner--danger" style="margin-bottom:18px;">
+                <i data-lucide="alert-circle"></i>
+                <span>{{ form.non_field_errors }}</span>
+            </div>
+            {% endif %}
+
+            <div class="form-group">
+                <label for="{{ form.name.id_for_label }}" class="form-label required">Panel nomi</label>
+                {{ form.name }}
+                <div class="form-text">Masalan: Asosiy kirish taqsimlash shiti (VRU-1)</div>
+                {% for error in form.name.errors %}<div class="form-text" style="color:var(--status-danger);">{{ error }}</div>{% endfor %}
+            </div>
+
+            <div class="form-group">
+                <label for="{{ form.panel_code.id_for_label }}" class="form-label required">Panel kodi / belgisi</label>
+                {{ form.panel_code }}
+                <div class="form-text">Masalan: ЩР-1, ВРУ-0.4кВ, ЩО-2</div>
+                {% for error in form.panel_code.errors %}<div class="form-text" style="color:var(--status-danger);">{{ error }}</div>{% endfor %}
+            </div>
+
+            <div class="form-group">
+                <label for="{{ form.location_description.id_for_label }}" class="form-label">O'rnatilgan joyi / Manzili</label>
+                {{ form.location_description }}
+                <div class="form-text">Masalan: 1-qavat, kirish yo'lagi texnik xonasi</div>
+                {% for error in form.location_description.errors %}<div class="form-text" style="color:var(--status-danger);">{{ error }}</div>{% endfor %}
+            </div>
+
+            <div class="form-group">
+                <label for="{{ form.installed_at.id_for_label }}" class="form-label">O'rnatilgan sana</label>
+                {{ form.installed_at }}
+                {% for error in form.installed_at.errors %}<div class="form-text" style="color:var(--status-danger);">{{ error }}</div>{% endfor %}
+            </div>
+
+            <div class="form-group">
+                <label for="{{ form.description.id_for_label }}" class="form-label">Qo'shimcha texnik parametrlar / Izoh</label>
+                {{ form.description }}
+                {% for error in form.description.errors %}<div class="form-text" style="color:var(--status-danger);">{{ error }}</div>{% endfor %}
+            </div>
+
+            <div style="background:var(--bg-card-subtle);padding:14px;border-radius:var(--radius-md);border:1px solid var(--border-color);margin-bottom:20px;display:flex;align-items:center;gap:10px;">
+                {{ form.is_public }}
+                <label for="{{ form.is_public.id_for_label }}" style="font-weight:600;font-size:0.9rem;cursor:pointer;">
+                    Ommaviy QR pasportda ko'rsatish
+                </label>
+            </div>
+
+            <div style="display:flex;justify-content:flex-end;gap:12px;border-top:1px solid var(--border-color);padding-top:16px;">
+                <a href="{% url 'projects:detail' project.pk %}#tab-panels" class="btn btn--secondary">Bekor qilish</a>
+                <button type="submit" class="btn btn--primary">
+                    <i data-lucide="check"></i> Panelni saqlash
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

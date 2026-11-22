@@ -1,0 +1,4 @@
+{% extends "base.html" %}
+{% block title %}{{ profile.user.get_full_name|default:profile.user.username }} — VoltPass{% endblock %}
+{% block content %}{% include "electricians/_public_profile_content.html" %}{% endblock %}
+{% block content_public %}{% include "electricians/_public_profile_content.html" %}{% endblock %}

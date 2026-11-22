@@ -1,0 +1,8 @@
+{% if section_images %}
+<div class="passport-gallery" aria-label="Yuklangan rasmlar">
+{% for img in section_images %}
+<figure class="passport-gallery__item"><a class="passport-gallery__link" href="{% url 'documents:image_display' img.pk %}" data-gallery-item data-gallery-group="section" data-original="{% url 'documents:image_view' img.pk %}" data-caption="{{ img.caption }}"><img src="{% url 'documents:image_thumbnail' img.pk %}" alt="{{ img.caption }}" width="720" height="540" loading="lazy" decoding="async"></a><figcaption>{{ img.caption }}</figcaption></figure>
+{% endfor %}
+</div>
+{% endif %}
+

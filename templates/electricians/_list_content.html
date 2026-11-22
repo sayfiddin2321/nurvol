@@ -1,0 +1,193 @@
+<div class="marketplace-page">
+    <!-- Header banner -->
+    <div class="card glass-card" style="margin-bottom:24px;padding:28px;position:relative;overflow:hidden;background:linear-gradient(135deg, rgba(37,99,235,0.08) 0%, rgba(14,165,233,0.04) 100%);">
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:20px;">
+            <div>
+                <span class="badge badge--primary" style="margin-bottom:8px;">
+                    <i data-lucide="shield-check" style="width:13px;height:13px;"></i> Tasdiqlangan Mutaxassislar
+                </span>
+                <h1 style="font-size:1.85rem;font-weight:800;letter-spacing:-0.03em;margin:4px 0 8px;">
+                    Elektriklar va Muhandislar Katalogi
+                </h1>
+                <p style="color:var(--text-secondary);font-size:0.95rem;max-width:650px;margin:0;">
+                    Uyingiz, korxonangiz yoki yangi binoingiz uchun sertifikatlangan, PUE me'yorlarini biladigan va raqamli pasport ochib beruvchi professional elektriklarni toping.
+                </p>
+            </div>
+            {% if user.is_electrician %}
+            <a href="{% url 'electricians:my_profile' %}" class="btn btn--outline">
+                <i data-lucide="user" style="width:16px;height:16px;"></i> Mening profilim
+            </a>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Filter & Search Bar -->
+    <div class="card glass-card" style="margin-bottom:24px;padding:18px 24px;">
+        <form method="GET" action="{% url 'electricians:list' %}" style="display:flex;flex-direction:column;gap:16px;">
+            <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:center;">
+                <div style="flex:1;min-width:240px;position:relative;">
+                    <i data-lucide="search" style="position:absolute;left:14px;top:50%;transform:translateY(-50%);width:18px;height:18px;color:var(--text-muted);"></i>
+                    <input type="text" name="q" value="{{ search }}" class="form-control" placeholder="Ism, mutaxassislik yoki shahar bo'yicha qidirish..." style="padding-left:42px;">
+                </div>
+
+                <div style="min-width:180px;">
+                    <select name="city" class="form-control" onchange="this.form.submit()">
+                        <option value="">Barcha shaharlar</option>
+                        {% for c in cities %}
+                            <option value="{{ c }}" {% if selected_city == c %}selected{% endif %}>{{ c }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div style="min-width:160px;">
+                    <select name="exp" class="form-control" onchange="this.form.submit()">
+                        <option value="">Har qanday tajriba</option>
+                        <option value="1" {% if min_exp == '1' %}selected{% endif %}>1+ yil tajriba</option>
+                        <option value="3" {% if min_exp == '3' %}selected{% endif %}>3+ yil tajriba</option>
+                        <option value="5" {% if min_exp == '5' %}selected{% endif %}>5+ yil tajriba</option>
+                        <option value="10" {% if min_exp == '10' %}selected{% endif %}>10+ yil tajriba</option>
+                    </select>
+                </div>
+
+                <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:0.9rem;font-weight:600;color:var(--text-primary);padding:8px 12px;background:var(--glass-surface-subtle);border-radius:10px;border:1px solid var(--border-color);">
+                    <input type="checkbox" name="verified" value="1" {% if verified_only %}checked{% endif %} onchange="this.form.submit()" style="accent-color:var(--blue-500);width:16px;height:16px;">
+                    <span>Faqat tasdiqlangan</span>
+                </label>
+
+                <button type="submit" class="btn btn--primary" style="padding:10px 20px;">
+                    <i data-lucide="filter" style="width:16px;height:16px;"></i> Saralash
+                </button>
+                {% if search or selected_city or verified_only or min_exp %}
+                <a href="{% url 'electricians:list' %}" class="btn btn--ghost" style="color:var(--text-muted);">
+                    Tozalash
+                </a>
+                {% endif %}
+            </div>
+        </form>
+    </div>
+
+    <!-- Results Count -->
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;padding:0 4px;">
+        <div style="font-size:0.9rem;color:var(--text-muted);font-weight:500;">
+            Jami topildi: <strong style="color:var(--text-primary);">{{ total_count }} ta</strong> mutaxassis
+        </div>
+    </div>
+
+    <!-- Electricians Grid -->
+    {% if electricians %}
+    <div style="display:grid;grid-template-columns:repeat(auto-fill, minmax(320px, 1fr));gap:20px;margin-bottom:32px;">
+        {% for profile in electricians %}
+        <div class="card glass-card hover-lift" style="padding:24px;display:flex;flex-direction:column;justify-content:space-between;border-radius:20px;position:relative;">
+            {% if profile.is_verified %}
+            <div style="position:absolute;top:18px;right:18px;">
+                <span class="badge badge--success" title="Tasdiqlangan mutaxassis">
+                    <i data-lucide="shield-check" style="width:12px;height:12px;"></i> Tasdiqlangan
+                </span>
+            </div>
+            {% endif %}
+
+            <div>
+                <!-- Avatar & Identity -->
+                <div style="display:flex;align-items:center;gap:16px;margin-bottom:16px;">
+                    {% if profile.avatar %}
+                        <img src="{{ profile.avatar.url }}" alt="{{ profile.user.get_full_name|default:profile.user.username }}" style="width:64px;height:64px;border-radius:16px;object-fit:cover;border:2px solid var(--blue-500);">
+                    {% else %}
+                        <div style="width:64px;height:64px;border-radius:16px;background:linear-gradient(135deg, var(--blue-600), var(--cyan-500));color:#fff;display:flex;align-items:center;justify-content:center;font-size:1.6rem;font-weight:800;box-shadow:0 4px 12px rgba(37,99,235,0.2);">
+                            {{ profile.user.first_name|default:profile.user.username|slice:":1"|upper }}
+                        </div>
+                    {% endif %}
+
+                    <div style="flex:1;min-width:0;">
+                        <a href="{% url 'electricians:public_profile' profile.user_id %}" style="text-decoration:none;color:var(--text-primary);">
+                            <h3 style="font-size:1.15rem;font-weight:700;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
+                                {{ profile.user.get_full_name|default:profile.user.username }}
+                            </h3>
+                        </a>
+                        <div style="font-size:0.85rem;color:var(--cyan-500);font-weight:600;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
+                            {{ profile.specialization|default:"Elektromontaj ustasi" }}
+                        </div>
+                        <div style="display:flex;align-items:center;gap:4px;font-size:0.8rem;color:var(--text-muted);margin-top:3px;">
+                            <i data-lucide="map-pin" style="width:13px;height:13px;color:var(--blue-500);"></i>
+                            {{ profile.city|default:"O'zbekiston" }}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Rating & Quick Badges -->
+                <div style="display:flex;align-items:center;gap:12px;background:var(--glass-surface-subtle);padding:10px 14px;border-radius:12px;margin-bottom:14px;border:1px solid var(--glass-border-strong);">
+                    <div style="display:flex;align-items:center;gap:4px;color:var(--rating-text);font-weight:700;font-size:0.95rem;">
+                        <i data-lucide="star" style="width:15px;height:15px;fill:#f59e0b;stroke:#f59e0b;"></i>
+                        <span>{{ profile.average_rating }}</span>
+                    </div>
+                    <span style="color:var(--text-muted);font-size:0.8rem;">({{ profile.review_count }} sharh)</span>
+                    <span style="opacity:0.4;">&bull;</span>
+                    <div style="font-size:0.82rem;color:var(--text-secondary);font-weight:600;">
+                        {{ profile.experience_years|default:"0" }} yil tajriba
+                    </div>
+                </div>
+
+                <!-- Bio excerpt -->
+                {% if profile.bio %}
+                <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.5;margin-bottom:16px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">
+                    {{ profile.bio }}
+                </p>
+                {% else %}
+                <p style="font-size:0.85rem;color:var(--text-muted);font-style:italic;margin-bottom:16px;">
+                    Elektr montaj va raqamli pasport loyihalari ijrochisi.
+                </p>
+                {% endif %}
+            </div>
+
+            <!-- Card Actions -->
+            <div style="display:flex;gap:10px;margin-top:14px;padding-top:14px;border-top:1px solid var(--border-color);">
+                <a href="{% url 'electricians:public_profile' profile.user_id %}" class="btn btn--primary btn--sm" style="flex:1;justify-content:center;">
+                    <i data-lucide="user" style="width:14px;height:14px;"></i> Profilni ko'rish
+                </a>
+                {% if profile.public_phone_url %}
+                <a href="{{ profile.public_phone_url }}" class="btn btn--outline btn--sm" title="Telefon qilish" style="color:var(--success);">
+                    <i data-lucide="phone" style="width:14px;height:14px;"></i>
+                </a>
+                {% endif %}
+                {% if profile.public_telegram_url %}
+                <a href="{{ profile.public_telegram_url }}" target="_blank" rel="noopener noreferrer" class="btn btn--outline btn--sm" title="Telegram" style="color:#0ea5e9;">
+                    <i data-lucide="send" style="width:14px;height:14px;"></i>
+                </a>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Pagination -->
+    {% if page_obj.has_other_pages %}
+    <div class="pagination" style="display:flex;justify-content:center;gap:8px;margin:24px 0;">
+        {% if page_obj.has_previous %}
+            <a href="?page={{ page_obj.previous_page_number }}{% if search %}&q={{ search }}{% endif %}{% if selected_city %}&city={{ selected_city }}{% endif %}{% if verified_only %}&verified=1{% endif %}{% if min_exp %}&exp={{ min_exp }}{% endif %}" class="btn btn--ghost btn--sm">
+                &larr; Oldingi
+            </a>
+        {% endif %}
+        <span class="btn btn--outline btn--sm disabled">
+            Sahifa {{ page_obj.number }} / {{ page_obj.paginator.num_pages }}
+        </span>
+        {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}{% if search %}&q={{ search }}{% endif %}{% if selected_city %}&city={{ selected_city }}{% endif %}{% if verified_only %}&verified=1{% endif %}{% if min_exp %}&exp={{ min_exp }}{% endif %}" class="btn btn--ghost btn--sm">
+                Keyingi &rarr;
+            </a>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    {% else %}
+    <div class="card glass-card" style="text-align:center;padding:48px 24px;border-radius:20px;">
+        <i data-lucide="search-x" style="width:48px;height:48px;color:var(--text-muted);margin:0 auto 16px;"></i>
+        <h3 style="font-size:1.2rem;font-weight:700;margin-bottom:8px;">Hech qanday elektrik topilmadi</h3>
+        <p style="color:var(--text-muted);font-size:0.9rem;max-width:400px;margin:0 auto 16px;">
+            Qidiruv mezonlarini o'zgartirib ko'ring yoki filtrlarni tozalang.
+        </p>
+        <a href="{% url 'electricians:list' %}" class="btn btn--secondary btn--sm">
+            Filtrlarni tozalash
+        </a>
+    </div>
+    {% endif %}
+</div>
+

@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block title %}Mijoz so'rovlari — NURVOLT{% endblock %}
+{% block page_title %}Mijoz so'rovlari{% endblock %}
+
+{% block content %}
+<div class="dashboard-welcome">
+    <div>
+        <h1 style="font-size:1.75rem;font-weight:800;margin:0;">Mijoz so'rovlari</h1>
+        <p class="dashboard-welcome__subtitle">Profilingiz orqali kelgan mijozlar va ularning aloqa ma'lumotlari.</p>
+    </div>
+    <span class="badge badge--warning">{{ unread_count }} ta yangi</span>
+</div>
+
+<div style="display:grid;gap:16px;">
+    {% for inquiry in inquiries %}
+    <article class="card" style="padding:22px;">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap;">
+            <div>
+                <h2 style="margin:0;font-size:1.05rem;">{{ inquiry.client.get_full_name|default:inquiry.client.username }}</h2>
+                <a href="tel:{{ inquiry.phone }}">{{ inquiry.phone }}</a>
+                <div style="margin-top:5px;color:var(--text-muted);font-size:.82rem;">{{ inquiry.created_at|date:"d.m.Y H:i" }}</div>
+            </div>
+            {% if inquiry.is_read %}
+            <span class="badge badge--success">Ko'rildi</span>
+            {% else %}
+            <span class="badge badge--warning">Yangi</span>
+            {% endif %}
+        </div>
+        <p style="margin:16px 0;white-space:pre-wrap;">{{ inquiry.message }}</p>
+        {% if not inquiry.is_read %}
+        <form method="post" action="{% url 'electricians:mark_inquiry_read' inquiry.pk %}">
+            {% csrf_token %}
+            <button type="submit" class="btn btn--secondary btn--sm">Ko'rildi deb belgilash</button>
+        </form>
+        {% endif %}
+    </article>
+    {% empty %}
+    <div class="card" style="padding:32px;text-align:center;color:var(--text-muted);">
+        Hozircha mijoz so'rovlari yo'q.
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

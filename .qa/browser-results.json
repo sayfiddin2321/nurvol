@@ -1,0 +1,18 @@
+{
+  "checks": [
+    "Public passport, protected thumbnails, three real contact links, desktop layout",
+    "Lightbox uses optimized full image; next/previous, keyboard, Escape and focus restoration",
+    "Mobile 320/390/768 widths and real emulated touch swipe",
+    "Browser login",
+    "Create using only name; gallery and QR are immediately available without tabs or visibility controls",
+    "Edit object and persist updated data",
+    "Multi-image picker, preview removal, separate camera input, drag/drop, optional description, upload and mobile layout",
+    "QR share copies stable link; all uploaded images open anonymously without permission steps",
+    "Delete uploaded image through browser and return to visible gallery",
+    "Same QR link reflects image deletion for anonymous visitors",
+    "A4 print rendered by Chrome and PDF generated with real QR and images",
+    "No JavaScript console errors or HTTP 404/500 responses during browser workflows"
+  ],
+  "console_errors": [],
+  "failed_responses": []
+}

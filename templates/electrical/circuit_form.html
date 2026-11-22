@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+{% block title %}Elektr zanjiri (liniya) — {{ project.name }} | VoltPass{% endblock %}
+{% block page_title %}Elektr zanjiri kiritish{% endblock %}
+
+{% block content %}
+<div style="max-width:680px;margin:0 auto;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+        <div>
+            <h1 style="font-size:1.6rem;font-weight:800;letter-spacing:-0.03em;margin:0;">
+                Elektr zanjiri (Liniya)
+            </h1>
+            <p style="color:var(--text-muted);font-size:0.9rem;margin-top:2px;">
+                Ob'ekt: <strong style="color:var(--text-primary);">{{ project.name }}</strong>
+            </p>
+        </div>
+        <a href="{% url 'projects:detail' project.pk %}#tab-circuits" class="btn btn--secondary btn--sm">
+            <i data-lucide="arrow-left"></i> Bekor qilish
+        </a>
+    </div>
+
+    <div class="card">
+        <form method="post">
+            {% csrf_token %}
+            {% if form.non_field_errors %}
+            <div class="msg-banner msg-banner--danger" style="margin-bottom:18px;">
+                <i data-lucide="alert-circle"></i>
+                <span>{{ form.non_field_errors }}</span>
+            </div>
+            {% endif %}
+
+            <section class="wiring-preview" aria-live="polite">
+                <p class="eyebrow">SIZNING ULANISH YO'LINGIZ</p>
+                <div class="wiring-chain">
+                    <span><i data-lucide="cpu"></i><strong data-wiring-value="panel">Shit tanlang</strong></span>
+                    <b aria-hidden="true">&rarr;</b>
+                    <span><i data-lucide="toggle-right"></i><strong data-wiring-value="circuit">Yangi liniya</strong></span>
+                    <b aria-hidden="true">&rarr;</b>
+                    <span><i data-lucide="plug"></i><strong data-wiring-value="load">Ulanadigan yuklama</strong></span>
+                </div>
+            </section>
+
+            <div class="form-group">
+                <label for="{{ form.panel.id_for_label }}" class="form-label required">Tegishli elektr shiti (Panel)</label>
+                {{ form.panel }}
+                {% if form.panel.help_text %}<div class="form-text">{{ form.panel.help_text }}</div>{% endif %}
+                {% for error in form.panel.errors %}<div class="form-text" style="color:var(--status-danger);">{{ error }}</div>{% endfor %}
+            </div>
+
+            <div class="form-group">
+                <label for="{{ form.circuit_code.id_for_label }}" class="form-label required">Liniya / Avtomat kodi</label>
+                {{ form.circuit_code }}
+                <div class="form-text">{{ form.circuit_code.help_text }}</div>
+                {% for error in form.circuit_code.errors %}<div class="form-text" style="color:var(--status-danger);">{{ error }}</div>{% endfor %}
+            </div>
+
+            <div class="form-group">
+                <label for="{{ form.name.id_for_label }}" class="form-label required">Liniya nomi</label>
+                {{ form.name }}
+                <div class="form-text">{{ form.name.help_text }}</div>
+                {% for error in form.name.errors %}<div class="form-text" style="color:var(--status-danger);">{{ error }}</div>{% endfor %}
+            </div>
+
+            <div class="form-group">
+                <label for="{{ form.description.id_for_label }}" class="form-label">Himoya turi va parametrlari</label>
+                {{ form.description }}
+                <div class="form-text">{{ form.description.help_text }}</div>
+                {% for error in form.description.errors %}<div class="form-text" style="color:var(--status-danger);">{{ error }}</div>{% endfor %}
+            </div>
+
+            <div style="background:var(--bg-card-subtle);padding:14px;border-radius:var(--radius-md);border:1px solid var(--border-color);margin-bottom:20px;display:flex;align-items:center;gap:10px;">
+                {{ form.is_public }}
+                <label for="{{ form.is_public.id_for_label }}" style="font-weight:600;font-size:0.9rem;cursor:pointer;">
+                    Ommaviy QR pasportda ko'rsatish
+                </label>
+            </div>
+
+            <div style="display:flex;justify-content:flex-end;gap:12px;border-top:1px solid var(--border-color);padding-top:16px;">
+                <a href="{% url 'projects:detail' project.pk %}#tab-circuits" class="btn btn--secondary">Bekor qilish</a>
+                <button type="submit" class="btn btn--primary">
+                    <i data-lucide="check"></i> Liniyani saqlash
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

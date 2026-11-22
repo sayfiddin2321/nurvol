@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Fayl qo'shish — {{ project.name }} | VoltPass{% endblock %}
+{% block page_title %}{{ project.name }} / Fayl qo'shish{% endblock %}
+{% block extra_js %}<script src="{% static 'js/upload.js' %}?v=4" defer></script>{% endblock %}
+{% block content %}
+<div class="simple-form-page">
+<h1>{% if type == 'image' %}Rasmlar qo'shish{% else %}Sxema, hujjat yoki video{% endif %}</h1>
+<p class="muted">{{ project.name }} · Barcha fayllar shu obyekt ichida saqlanadi.</p>
+<form class="card simple-form" method="post" enctype="multipart/form-data" data-upload-form>
+{% csrf_token %}
+{% if form.errors %}<div class="upload-errors" role="alert"><strong>Fayllar yuklanmadi.</strong>{{ form.non_field_errors }}{% for field in form %}{% for error in field.errors %}<p>{{ field.label }}: {{ error }}</p>{% endfor %}{% endfor %}<p>Rasmlarni qayta tanlab, urinib ko'ring.</p></div>{% endif %}
+{% if type == 'image' %}
+<div class="upload-drop-zone" data-drop-zone>
+<label class="form-label" for="{{ form.images.id_for_label }}"><i data-lucide="images"></i> Galereyadan rasmlar tanlang</label>
+<p class="muted">Bir nechta rasm tanlang yoki fayllarni shu yerga tashlang.</p>
+{{ form.images }}
+<p class="form-text">JPG, PNG, WebP · har biri 20 MB gacha · bir martada 20 ta, jami 100 MB gacha.</p>
+</div>
+<button type="button" class="btn btn--secondary camera-picker" data-camera-trigger hidden><i data-lucide="camera"></i> Kameradan rasm olish</button>
+<input type="file" accept="image/*" capture="environment" data-camera-input hidden aria-label="Kameradan rasm olish">
+<p class="form-text" data-upload-status role="status" aria-live="polite">Rasmlarni tekshiring. Keraksizlarini yuklashdan oldin olib tashlang.</p>
+<div class="upload-previews" data-upload-previews></div>
+<div class="form-group"><label class="form-label" for="{{ form.description.id_for_label }}">Izoh (ixtiyoriy)</label>{{ form.description }}</div>
+<p class="form-text">Yuklangan rasmlar QR havolasi orqali avtomatik ko'rinadi.</p>
+{% else %}
+<div class="form-group"><label class="form-label required" for="{{ form.title.id_for_label }}">Fayl nomi</label>{{ form.title }}</div>
+<div class="form-group"><label class="form-label required" for="{{ form.file.id_for_label }}">Fayl tanlang</label>{{ form.file }}<p class="form-text">PDF, DOC, DOCX, MP4 yoki WebM · 20 MB gacha.</p></div>
+<div class="form-group"><label class="form-label" for="{{ form.description.id_for_label }}">Izoh (ixtiyoriy)</label>{{ form.description }}</div>
+{% endif %}
+{% if type != 'image' %}<label class="toggle-row form-group">{{ form.is_public }}<span>QR pasportda mijozga ko'rinsin</span></label>{% endif %}
+<div class="action-row"><button type="submit" class="btn btn--primary">Yuklash</button><a class="btn btn--secondary" href="{% url 'projects:detail' project.pk %}#{% if type == 'image' %}tab-images{% else %}tab-documents{% endif %}">Bekor qilish</a></div>
+</form></div>
+{% endblock %}
+

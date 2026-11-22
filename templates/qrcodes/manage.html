@@ -1,0 +1,181 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}QR Pasport boshqaruvi — {{ project.name }} | VoltPass{% endblock %}
+{% block page_title %}QR Kodlar Boshqaruvi{% endblock %}
+
+{% block extra_js %}<script src="{% static 'js/qr.js' %}" defer></script>{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px;margin-bottom:24px;">
+    <div>
+        <div style="display:flex;align-items:center;gap:10px;">
+            <h1 style="font-size:1.75rem;font-weight:800;letter-spacing:-0.03em;margin:0;">
+                QR Kodlar Markazi
+            </h1>
+            <span class="table-tech-code">#EP-{{ project.pk|stringformat:"05d" }}</span>
+        </div>
+        <p style="color:var(--text-muted);font-size:0.95rem;margin-top:4px;">
+            Ob'ekt: <strong style="color:var(--text-primary);">{{ project.name }}</strong> · Raqamli pasport identifikatsiyasi
+        </p>
+    </div>
+    <div style="display:flex;gap:10px;align-items:center;">
+        <a href="{% url 'qrcodes:print' project.pk %}" class="btn btn--secondary" target="_blank">
+            <i data-lucide="printer"></i> Yorliqlarni chop etish (Stickers)
+        </a>
+        <a href="{% url 'projects:detail' project.pk %}" class="btn btn--primary">
+            <i data-lucide="arrow-left"></i> Pasportga qaytish
+        </a>
+    </div>
+</div>
+
+<!-- ==================== 1. MAIN BUILDING QR CARD ==================== -->
+<div class="card qr-building-card">
+    <div class="qr-building-card__layout">
+        
+        <!-- QR Code Visual Display -->
+        <div class="qr-building-card__image">
+            <div class="qr-box">
+                <img src="{% url 'qrcodes:download' building_qr.token %}" alt="{{ project.name }} bino QR kodi" width="240" height="240" decoding="async">
+            </div>
+            <div style="margin-top:10px;font-family:var(--font-mono);font-size:0.75rem;color:var(--text-muted);background:var(--bg-card-subtle);padding:4px 8px;border-radius:4px;border:1px solid var(--border-color);max-width:232px;overflow:hidden;text-overflow:ellipsis;">
+                Token: {{ building_qr.token }}
+            </div>
+        </div>
+
+        <!-- QR Information and Controls -->
+        <div class="qr-building-card__content">
+            <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px;">
+                <h2 style="font-size:1.35rem;font-weight:800;color:var(--text-primary);margin:0;">
+                    Bino Asosiy Elektr Pasporti (General QR)
+                </h2>
+                {% if building_qr.is_active %}
+                    <span class="badge badge--success">
+                        <span class="badge-dot"></span> Faol
+                    </span>
+                {% else %}
+                    <span class="badge badge--neutral">Faol emas</span>
+                {% endif %}
+            </div>
+            
+            <p style="color:var(--text-secondary);font-size:0.92rem;line-height:1.6;margin-bottom:16px;">
+                Ushbu QR kod binoning kirish qismiga yoki asosiy elektr shitiga yopishtiriladi. Telefon kamerasi bilan skanerlanganda binoning to'liq raqamli pasporti, chizmalari va mutaxassis kontaktlari ochiladi.
+            </p>
+
+            <div style="display:flex;align-items:center;gap:14px;margin-bottom:20px;flex-wrap:wrap;">
+                <span class="badge badge--cyan" style="font-size:0.85rem;padding:6px 12px;">
+                    <i data-lucide="smartphone" style="width:14px;height:14px;"></i> {{ scan_count }} marta skanerlangan
+                </span>
+                <a href="{% url 'qrcodes:scans' project.pk %}" class="btn btn--sm btn--ghost" style="color:var(--blue-500);">
+                    <i data-lucide="bar-chart-2"></i> To'liq skanlar auditi →
+                </a>
+            </div>
+
+            {% if not project.is_public %}
+            <div class="msg-banner msg-banner--warning" style="margin-bottom:20px;">
+                <i data-lucide="alert-triangle"></i>
+                <span>Diqqat: Loyiha hozircha yopiq rejimda. Tashqi mehmonlar skaner qilganda maxfiy ekran ko'rinadi. Ommaga ochish uchun loyiha sozlamalarida "Ommaviy" qilib belgilang.</span>
+            </div>
+            {% endif %}
+
+            <!-- Action Buttons Grid -->
+            <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
+                <a href="{% url 'qrcodes:download' building_qr.token %}" class="btn btn--primary btn--sm">
+                    <i data-lucide="download"></i> PNG yuklash
+                </a>
+                <a href="{% url 'qrcodes:print' project.pk %}" class="btn btn--secondary btn--sm" target="_blank">
+                    <i data-lucide="printer"></i> Chop etish
+                </a>
+                <button type="button" class="btn btn--secondary btn--sm" data-qr-share="{{ request.scheme }}://{{ request.get_host }}{% url 'qrcodes:public' building_qr.token %}">
+                    <i data-lucide="share-2"></i> Havolani nusxalash
+                </button>
+                <form method="post" action="{% url 'qrcodes:toggle' building_qr.token %}" style="display:inline;">
+                    {% csrf_token %}
+                    <button class="btn btn--ghost btn--sm" type="submit">
+                        <i data-lucide="power"></i> {% if building_qr.is_active %}O'chirish{% else %}Faollashtirish{% endif %}
+                    </button>
+                </form>
+                <form method="post" action="{% url 'qrcodes:regenerate' building_qr.token %}" style="display:inline;" data-confirm="Haqiqatan ham tokenni yangilamoqchimisiz? Eski QR yorliqlar ishlamay qoladi!">
+                    {% csrf_token %}
+                    <button class="btn btn--ghost btn--sm" style="color:var(--status-danger);" type="submit">
+                        <i data-lucide="refresh-cw"></i> Qayta generatsiya
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ==================== 2. INDIVIDUAL ELECTRICAL PANELS QR CODES ==================== -->
+<div class="card">
+    <div class="card-header">
+        <div>
+            <h2 class="card-title">
+                <i data-lucide="cpu" style="color:var(--cyan-500);"></i>
+                Elektr shitlari uchun maxsus QR pasportlar
+            </h2>
+            <div class="card-subtitle">Har bir taqsimlash shiti korpusiga yopishtiriladigan individual yorliqlar</div>
+        </div>
+    </div>
+
+    <div class="qr-panel-grid">
+        {% for panel in panels %}
+        <div class="qr-panel-card card">
+            <div style="display:flex;align-items:flex-start;gap:16px;">
+                {% if panel.qr_code %}
+                <div class="qr-panel-card__image">
+                    <img src="{% url 'qrcodes:download' panel.qr_code.token %}" alt="{{ panel.name }} QR" width="96" height="96" decoding="async">
+                </div>
+                {% else %}
+                <div style="width:96px;height:96px;border-radius:8px;background:var(--bg-hover);border:2px dashed var(--border-strong);display:flex;align-items:center;justify-content:center;color:var(--text-muted);flex-shrink:0;">
+                    <i data-lucide="qr-code" style="width:32px;height:32px;"></i>
+                </div>
+                {% endif %}
+
+                <div style="overflow:hidden;">
+                    <span class="table-tech-code">{{ panel.panel_code }}</span>
+                    <h3 style="margin:6px 0 2px;font-size:1.05rem;font-weight:700;color:var(--text-primary);text-overflow:ellipsis;overflow:hidden;white-space:nowrap;">
+                        {{ panel.name }}
+                    </h3>
+                    <div style="font-size:0.8rem;color:var(--text-muted);">
+                        {{ panel.location_description|default:"Joylashuv ko'rsatilmagan"|truncatechars:35 }}
+                    </div>
+                </div>
+            </div>
+
+            <div style="border-top:1px solid var(--border-color);padding-top:12px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">
+                {% if panel.qr_code %}
+                    <div style="display:flex;gap:6px;">
+                        <a href="{% url 'qrcodes:download' panel.qr_code.token %}" class="btn btn--sm btn--primary">
+                            <i data-lucide="download"></i> PNG
+                        </a>
+                        <button type="button" class="btn btn--sm btn--secondary" data-qr-share="{{ request.scheme }}://{{ request.get_host }}{% url 'qrcodes:public' panel.qr_code.token %}">
+                            <i data-lucide="share-2"></i> Ulashish
+                        </button>
+                    </div>
+                    <form method="post" action="{% url 'qrcodes:regenerate' panel.qr_code.token %}" data-confirm="Panel QR kodini yangilaysizmi?">
+                        {% csrf_token %}
+                        <button class="btn btn--sm btn--ghost" style="color:var(--text-muted);" type="submit" title="Yangilash">
+                            <i data-lucide="refresh-cw"></i>
+                        </button>
+                    </form>
+                {% else %}
+                    <form method="post" action="{% url 'qrcodes:panel_generate' panel.pk %}" style="width:100%;">
+                        {% csrf_token %}
+                        <button class="btn btn--primary btn--sm" type="submit" style="width:100%;">
+                            <i data-lucide="plus"></i> QR kod yaratish
+                        </button>
+                    </form>
+                {% endif %}
+            </div>
+        </div>
+        {% empty %}
+        <div class="empty-state" style="grid-column:1/-1;">
+            <div class="empty-state-icon"><i data-lucide="cpu"></i></div>
+            <div class="empty-state-title">Hali elektr shitlari kiritilmagan</div>
+            <div class="empty-state-text">Loyiha tafsilotlaridan panellarni qo'shing.</div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,160 @@
+{% extends "base.html" %}
+{% block title %}Elektriklarni boshqarish — NURVOLT{% endblock %}
+{% block page_title %}Elektriklarni boshqarish{% endblock %}
+
+{% block content %}
+<div class="dashboard-welcome">
+    <div>
+        <h1 style="font-size:1.75rem;font-weight:800;margin:0;">Elektriklarni boshqarish</h1>
+        <p class="dashboard-welcome__subtitle">Ro'yxatdan o'tgan elektriklar, to'lov so'rovlari va akkaunt ruxsatlari.</p>
+    </div>
+    <div class="dashboard-welcome__actions">
+        <a href="{% url 'projects:showcase_settings' %}" class="btn btn--secondary">
+            Bosh sahifa ishlarini tanlash
+        </a>
+        <a href="{% url 'accounts:payment_settings' %}" class="btn btn--primary">
+            To'lov rekvizitlarini sozlash
+        </a>
+    </div>
+</div>
+
+<div class="stats-grid">
+    <div class="stat-card"><span class="stat-card-title">Jami elektriklar</span><div class="stat-card-value">{{ counts.total }}</div></div>
+    <div class="stat-card"><span class="stat-card-title">Yangi ro'yxatdan o'tganlar</span><div class="stat-card-value">{{ counts.pending_payment }}</div></div>
+    <div class="stat-card"><span class="stat-card-title">To'lov tekshirilmoqda</span><div class="stat-card-value">{{ counts.payment_submitted }}</div></div>
+    <div class="stat-card"><span class="stat-card-title">Faol elektriklar</span><div class="stat-card-value">{{ counts.active }}</div></div>
+</div>
+
+<nav class="action-row" aria-label="Elektrik so'rovlarini saralash" style="margin:20px 0;">
+    <a class="btn {% if not selected_status %}btn--primary{% else %}btn--secondary{% endif %}" href="{% url 'accounts:manage_electricians' %}">Barchasi</a>
+    <a class="btn {% if selected_status == 'pending_payment' %}btn--primary{% else %}btn--secondary{% endif %}" href="?status=pending_payment">Yangi akkauntlar · {{ counts.pending_payment }}</a>
+    <a class="btn {% if selected_status == 'payment_submitted' %}btn--primary{% else %}btn--secondary{% endif %}" href="?status=payment_submitted">To'lov so'rovlari · {{ counts.payment_submitted }}</a>
+    <a class="btn {% if selected_status == 'suspended' %}btn--primary{% else %}btn--secondary{% endif %}" href="?status=suspended">To‘xtatilganlar · {{ counts.suspended }}</a>
+</nav>
+
+<div class="card" style="padding:0;overflow:hidden;">
+    <div class="table-responsive">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Elektrik</th>
+                    <th>Aloqa</th>
+                    <th>Shahar</th>
+                    <th>Loyihalar</th>
+                    <th>To'lov ma'lumoti</th>
+                    <th>Chek</th>
+                    <th>Holati</th>
+                    <th>Amallar</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for profile in profiles %}
+                <tr>
+                    <td>
+                        <strong>{{ profile.user.get_full_name|default:profile.user.username }}</strong>
+                        <div style="font-size:.8rem;color:var(--text-muted);">{{ profile.user.username }}</div>
+                    </td>
+                    <td>
+                        {{ profile.user.phone|default:"—" }}
+                        {% if profile.user.email %}<div style="font-size:.8rem;color:var(--text-muted);">{{ profile.user.email }}</div>{% endif %}
+                    </td>
+                    <td>{{ profile.city|default:"—" }}</td>
+                    <td>{{ profile.project_count }}</td>
+                    <td>{{ profile.payment_reference|default:"—" }}</td>
+                    <td>
+                        {% if profile.payment_receipt %}
+                        <a href="{% url 'accounts:payment_receipt' profile.user_id %}" target="_blank" rel="noopener noreferrer">Chekni ko'rish</a>
+                        {% elif profile.access_status == "pending_payment" %}To'lov cheki kutilmoqda{% else %}—{% endif %}
+                    </td>
+                    <td>
+                        {% if not profile.user.is_active %}
+                        <span class="badge badge--neutral">To‘xtatilgan</span>
+                        {% else %}
+                        <span class="badge badge--{% if profile.access_status == 'active' %}success{% elif profile.access_status == 'payment_submitted' %}warning{% else %}neutral{% endif %}">{{ profile.get_access_status_display }}</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if profile.access_status == "payment_submitted" %}
+                        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                            <form method="post" action="{% url 'accounts:update_electrician_access' profile.pk %}">
+                                {% csrf_token %}
+                                <input type="hidden" name="action" value="approve">
+                                <button type="submit" class="btn btn--primary btn--sm">To'lovni tasdiqlash va faollashtirish</button>
+                            </form>
+                            <form method="post" action="{% url 'accounts:update_electrician_access' profile.pk %}">
+                                {% csrf_token %}
+                                <input type="hidden" name="action" value="reject">
+                                <button type="submit" class="btn btn--secondary btn--sm">Rad etish</button>
+                            </form>
+                        </div>
+                        {% endif %}
+                        {% if not profile.user.is_administrator and profile.user.pk != request.user.pk %}
+                        <form method="post" action="{% url 'accounts:set_electrician_account_active' profile.pk %}" style="margin-top:{% if profile.access_status == 'payment_submitted' %}8{% else %}0{% endif %}px;">
+                            {% csrf_token %}
+                            {% if profile.user.is_active %}
+                            <input type="hidden" name="action" value="suspend">
+                            <button type="submit" class="btn btn--secondary btn--sm">Akkauntni to‘xtatish</button>
+                            {% else %}
+                            <input type="hidden" name="action" value="activate">
+                            <button type="submit" class="btn btn--primary btn--sm">Akkauntni faollashtirish</button>
+                            {% endif %}
+                        </form>
+                        <form method="post" action="{% url 'accounts:set_electrician_account_active' profile.pk %}" style="margin-top:8px;">
+                            {% csrf_token %}
+                            <input type="hidden" name="action" value="delete">
+                            <button type="submit"
+                                    class="btn btn--danger btn--sm"
+                                    onclick="return confirm('Bu elektrikning akkaunti va barcha eski ishlari butunlay o‘chirilsinmi?');">
+                                Akkauntni o‘chirish
+                            </button>
+                        </form>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="8" style="text-align:center;padding:32px;">Hozircha elektriklar ro'yxatdan o'tmagan.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="card" style="margin-top:24px;">
+    <div style="display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap;">
+        <div>
+            <h2 style="margin:0;">Bosh sahifadagi murojaatlar</h2>
+            <p class="dashboard-welcome__subtitle">Telefon yoki forma orqali kelgan murojaatlar — administrator va bosh elektrik uchun.</p>
+        </div>
+    </div>
+    <div class="table-responsive" style="margin-top:14px;">
+        <table class="table">
+            <thead>
+                <tr><th>Ism</th><th>Telefon</th><th>Tarif</th><th>Xabar</th><th>Sana</th><th>Holat</th></tr>
+            </thead>
+            <tbody>
+                {% for inquiry in contact_inquiries %}
+                <tr>
+                    <td><strong>{{ inquiry.name }}</strong></td>
+                    <td><a href="tel:{{ inquiry.phone }}">{{ inquiry.phone }}</a></td>
+                    <td>{{ inquiry.get_plan_display }}</td>
+                    <td style="max-width:360px;">{{ inquiry.message }}</td>
+                    <td>{{ inquiry.created_at|date:"d.m.Y H:i" }}</td>
+                    <td>
+                        {% if inquiry.is_read %}
+                        <span class="badge badge--success">Ko'rilgan</span>
+                        {% else %}
+                        <form method="post" action="{% url 'accounts:mark_contact_inquiry_read' inquiry.pk %}">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn--secondary btn--sm">Ko'rilgan</button>
+                        </form>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="6" style="text-align:center;padding:24px;">Murojaatlar hali yo'q.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

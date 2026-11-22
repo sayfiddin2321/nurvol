@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{% block title %}{{ project.name }} — loyiha yo'riqnomasi | VoltPass{% endblock %}
+{% block page_title %}Loyiha sozlash{% endblock %}
+
+{% block content %}
+<div class="setup-page">
+    <header class="setup-heading">
+        <div>
+            <a class="setup-back" href="{% url 'projects:list' %}">&larr; Loyihalar</a>
+            <p class="eyebrow">BOSQICHMA-BOSQICH YO'RIQNOMA</p>
+            <h1>{{ project.name }}</h1>
+            <p class="muted">Pasportni QR havolasi bilan ulashing. Qolgan ma'lumot va suratlarni xohlasangiz keyin qo'shing.</p>
+        </div>
+        <a class="btn btn--secondary" href="{% url 'projects:detail' project.pk %}">Pasportni ko'rish</a>
+    </header>
+
+    <section class="setup-progress card" aria-label="Loyiha tayyorligi">
+        <div class="setup-progress__top">
+            <div>
+                <h2>Asosiy pasport tayyorligi</h2>
+                <p class="muted">Rasm va hujjatlar ixtiyoriy; loyiha uchun QR pasportni tayyorlash kifoya.</p>
+            </div>
+            <strong class="setup-progress__percent">{{ progress }}%</strong>
+        </div>
+        <div class="setup-progress__track" role="progressbar" aria-valuenow="{{ progress }}" aria-valuemin="0" aria-valuemax="100">
+            <span style="width:{{ progress }}%"></span>
+        </div>
+        {% if next_step %}
+        <a class="btn btn--primary btn--lg setup-next" href="{% if can_edit %}{{ next_step.url }}{% else %}{% url 'projects:detail' project.pk %}{% endif %}">
+            <i data-lucide="{{ next_step.icon }}"></i>
+            Keyingi qadam: {{ next_step.action }} <span aria-hidden="true">&rarr;</span>
+        </a>
+        {% else %}
+        <div class="setup-complete"><i data-lucide="circle-check"></i> Asosiy qadamlar bajarildi. Pasport tayyor!</div>
+        {% endif %}
+    </section>
+
+    <section class="setup-steps" aria-label="Loyiha bosqichlari">
+        {% for step in steps %}
+        <article class="setup-step card {% if step.done %}is-done{% elif step.blocked %}is-blocked{% endif %}">
+            <div class="setup-step__number">
+                {% if step.done %}<i data-lucide="check"></i>{% else %}{{ forloop.counter }}{% endif %}
+            </div>
+            <div class="setup-step__body">
+                <div class="setup-step__heading">
+                    <h2>{{ step.title }}</h2>
+                    {% if step.optional %}<span class="badge badge--muted">Ixtiyoriy</span>{% endif %}
+                    {% if step.done %}<span class="badge badge--success">Tayyor</span>{% endif %}
+                </div>
+                <p>{{ step.description }}</p>
+                <span class="setup-step__count">{{ step.count }}</span>
+                {% if step.blocked %}
+                <p class="setup-step__hint">Avval elektr shit qo'shing — shunda liniya yoki kabelni unga bog'lay olasiz.</p>
+                {% endif %}
+            </div>
+            {% if can_edit %}
+            <a class="btn {% if step.done %}btn--secondary{% else %}btn--outline{% endif %} setup-step__action" href="{% if step.blocked %}{% url 'electrical:panel_create' project.pk %}{% else %}{{ step.url }}{% endif %}">
+                {% if step.blocked %}Avval shit qo'shish{% elif step.done %}Yana qo'shish{% else %}{{ step.action }}{% endif %}
+            </a>
+            {% else %}
+            <span class="setup-readonly">Ko'rish rejimi</span>
+            {% endif %}
+        </article>
+        {% endfor %}
+    </section>
+
+    <section class="setup-help card">
+        <div class="setup-help__icon"><i data-lucide="lightbulb"></i></div>
+        <div>
+            <h2>Rasm yuklash bilan boshlang</h2>
+            <p>Qavat rejasini, shitni, zanjir sxemasini, sim-kabel yo'nalishini va qurilmalarni telefonda suratga olib, tegishli bo'limga yuklang. Qavat yoki qurilma yozuvlarini qo'lda kiritish majburiy emas.</p>
+            <div class="wiring-chain" aria-label="Yuklanishi mumkin bo'lgan rasmlar">
+                <span><i data-lucide="cpu"></i> Shit</span><b aria-hidden="true">&rarr;</b>
+                <span><i data-lucide="toggle-right"></i> Liniya / avtomat</span><b aria-hidden="true">&rarr;</b>
+                <span><i data-lucide="cable"></i> Kabel</span><b aria-hidden="true">&rarr;</b>
+                <span><i data-lucide="plug"></i> Xona / qurilma</span>
+            </div>
+        </div>
+    </section>
+</div>
+{% endblock %}

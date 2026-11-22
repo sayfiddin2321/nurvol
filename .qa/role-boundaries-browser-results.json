@@ -1,0 +1,37 @@
+{
+  "checks": [
+    "Head electrician is clearly labelled and has global management tools",
+    "Recently paid and approved account is labelled Elektrik with no global management menu",
+    "Direct GET and POST attempts to management URLs are refused with 403",
+    "Ordinary electrician receives only their own customer inquiries",
+    "Approval preserves ordinary permissions and the paid account returns to its dashboard",
+    "Personal menu is clear on mobile"
+  ],
+  "expected_denials": [
+    {
+      "url": "http://127.0.0.1:8765/accounts/manage/electricians/",
+      "status": 403
+    },
+    {
+      "url": "http://127.0.0.1:8765/accounts/manage/electricians/",
+      "status": 403
+    },
+    {
+      "url": "http://127.0.0.1:8765/accounts/manage/payment-settings/",
+      "status": 403
+    },
+    {
+      "url": "http://127.0.0.1:8765/accounts/manage/payment-settings/",
+      "status": 403
+    },
+    {
+      "url": "http://127.0.0.1:8765/projects/manage/showcase/",
+      "status": 403
+    },
+    {
+      "url": "http://127.0.0.1:8765/projects/manage/showcase/",
+      "status": 403
+    }
+  ],
+  "javascript_errors": []
+}

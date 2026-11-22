@@ -1,0 +1,144 @@
+{% extends "base.html" %}
+{% block title %}Tizim sozlamalari — VoltPass{% endblock %}
+{% block page_title %}Sozlamalar{% endblock %}
+
+{% block content %}
+<div style="max-width:880px;margin:0 auto;">
+    <div style="margin-bottom:24px;">
+        <h1 style="font-size:1.75rem;font-weight:800;letter-spacing:-0.03em;margin:0;">
+            Kabinetingiz sozlamalari
+        </h1>
+        <p style="color:var(--text-muted);font-size:0.92rem;margin-top:4px;">
+            Shaxsiy ma'lumotlar, aloqa rekvizitlari va interfeys parametrlarini boshqaring
+        </p>
+    </div>
+
+    {% if user.is_administrator %}
+    <div class="action-row" style="margin-bottom:24px;">
+        <a class="btn btn--primary" href="{% url 'accounts:payment_settings' %}">To'lov rekvizitlarini kiritish</a>
+        <a class="btn btn--secondary" href="{% url 'accounts:manage_electricians' %}">Elektrik so'rovlari</a>
+    </div>
+    {% endif %}
+
+    <!-- Navigation Tabs -->
+    <nav class="tabs-nav" style="margin-bottom:24px;">
+        <a class="tab-btn {% if active_tab == 'profile' %}active{% endif %}" href="?tab=profile">
+            <i data-lucide="user"></i> Profil ma'lumotlari
+        </a>
+        <a class="tab-btn {% if active_tab == 'security' %}active{% endif %}" href="?tab=security">
+            <i data-lucide="shield-check"></i> Xavfsizlik & Parol
+        </a>
+        <a class="tab-btn {% if active_tab == 'appearance' %}active{% endif %}" href="?tab=appearance">
+            <i data-lucide="palette"></i> Mavzu & Ko'rinish
+        </a>
+    </nav>
+
+    {% if active_tab == "profile" %}
+        <div class="card">
+            <div class="card-header">
+                <div>
+                    <h2 class="card-title">
+                        <i data-lucide="user-cog" style="color:var(--blue-500);"></i>
+                        Shaxsiy ma'lumotlar
+                    </h2>
+                    <div class="card-subtitle">Pasportlar va tizim ichida ko'rinadigan ma'lumotlaringiz</div>
+                </div>
+            </div>
+
+            <form method="post">
+                {% csrf_token %}
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="{{ form.first_name.id_for_label }}" class="form-label">Ism</label>
+                        {{ form.first_name }}
+                        {% for error in form.first_name.errors %}<div class="form-text" style="color:var(--status-danger);">{{ error }}</div>{% endfor %}
+                    </div>
+                    <div class="form-group">
+                        <label for="{{ form.last_name.id_for_label }}" class="form-label">Familiya</label>
+                        {{ form.last_name }}
+                        {% for error in form.last_name.errors %}<div class="form-text" style="color:var(--status-danger);">{{ error }}</div>{% endfor %}
+                    </div>
+                </div>
+
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="{{ form.email.id_for_label }}" class="form-label">Elektron pochta (Email)</label>
+                        {{ form.email }}
+                        {% for error in form.email.errors %}<div class="form-text" style="color:var(--status-danger);">{{ error }}</div>{% endfor %}
+                    </div>
+                    <div class="form-group">
+                        <label for="{{ form.phone.id_for_label }}" class="form-label">Telefon raqam</label>
+                        {{ form.phone }}
+                        <div class="form-text">Mijozlar bilan aloqa qilish uchun</div>
+                        {% for error in form.phone.errors %}<div class="form-text" style="color:var(--status-danger);">{{ error }}</div>{% endfor %}
+                    </div>
+                </div>
+
+                <div style="display:flex;justify-content:flex-end;border-top:1px solid var(--border-color);padding-top:16px;margin-top:10px;">
+                    <button class="btn btn--primary" type="submit">
+                        <i data-lucide="save"></i> Saqlash
+                    </button>
+                </div>
+            </form>
+        </div>
+
+    {% elif active_tab == "security" %}
+        <div class="card">
+            <div class="card-header">
+                <div>
+                    <h2 class="card-title">
+                        <i data-lucide="lock" style="color:var(--status-danger);"></i>
+                        Akkaunt xavfsizligi
+                    </h2>
+                    <div class="card-subtitle">Parol va himoya sozlamalari</div>
+                </div>
+            </div>
+
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:16px;background:var(--bg-card-subtle);border-radius:var(--radius-md);border:1px solid var(--border-color);margin-bottom:20px;">
+                <div>
+                    <div style="font-weight:700;color:var(--text-primary);font-size:0.95rem;">Kirish paroli</div>
+                    <div style="font-size:0.83rem;color:var(--text-muted);margin-top:2px;">Parolingizni vaqti-vaqti bilan yangilab turing</div>
+                </div>
+                <a href="{% url 'accounts:password_change' %}" class="btn btn--secondary btn--sm">
+                    <i data-lucide="key"></i> Parolni yangilash
+                </a>
+            </div>
+        </div>
+
+    {% else %}
+        <div class="card">
+            <div class="card-header">
+                <div>
+                    <h2 class="card-title">
+                        <i data-lucide="palette" style="color:var(--cyan-500);"></i>
+                        Mavzu va Interfeys ko'rinishi
+                    </h2>
+                    <div class="card-subtitle">Kun (Light) va Tun (Dark) rejimlarini sozlash</div>
+                </div>
+            </div>
+
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+                <div style="border:2px solid var(--blue-500);border-radius:var(--radius-lg);padding:18px;background:var(--bg-card-subtle);cursor:pointer;" class="theme-toggle-btn">
+                    <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+                        <i data-lucide="sun" style="color:var(--status-warning);"></i>
+                        <span style="font-weight:700;">Kun rejimi (Light Mode)</span>
+                    </div>
+                    <div style="font-size:0.83rem;color:var(--text-muted);">
+                        Oq kartalar, yorug' fon, aniq o'qiladigan shriftlar va ko'k aksentlar.
+                    </div>
+                </div>
+
+                <div style="border:2px solid var(--border-color);border-radius:var(--radius-lg);padding:18px;background:var(--navy-900);color:#fff;cursor:pointer;" class="theme-toggle-btn">
+                    <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+                        <i data-lucide="moon" style="color:var(--cyan-500);"></i>
+                        <span style="font-weight:700;color:#fff;">Tun rejimi (Dark Navy Mode)</span>
+                    </div>
+                    <div style="font-size:0.83rem;color:var(--silver);">
+                        Chuqur Deep Navy foni, elektr ko'k aksentlar va ko'zga qulay muhandislik kontrasti.
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

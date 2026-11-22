@@ -1,0 +1,276 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="uz" data-theme="light">
+<head>
+<link rel="icon" type="image/svg+xml" href="{% static 'favicon.svg' %}?v=2">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}NURVOLT — Electrical Digital Passport{% endblock %}</title>
+    
+    <!-- Lucide Icons -->
+    <script src="{% static 'js/lucide.min.js' %}" defer></script>
+    
+    <!-- Main Design System CSS -->
+    <link rel="stylesheet" href="{% static 'css/style.css' %}?v=3">
+    <link rel="stylesheet" href="{% static 'css/workspace.css' %}?v=3">
+    {% block extra_css %}{% endblock %}
+</head>
+<body class="{% block body_class %}{% endblock %}">
+    <div class="app-shell">
+        {% if user.is_authenticated %}
+        <!-- Backdrop for mobile drawer -->
+        <div class="sidebar-backdrop"></div>
+
+        <!-- ==================== SIDEBAR ==================== -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <a href="{% url 'dashboard' %}" class="sidebar-brand">
+                    <div class="sidebar-brand-badge">
+                        <img src="{% static 'images/nurvolt-mark.svg' %}" alt="" style="width:20px;height:21px;">
+                    </div>
+                    <div class="sidebar-brand-text">
+                        <span class="sidebar-brand-title">NURVOLT</span>
+                        <span class="sidebar-brand-sub">Elektrik kabineti</span>
+                    </div>
+                </a>
+                <button class="sidebar-toggle-btn" aria-label="Sidebar yig'ish/ochish" title="Yig'ish / Kengaytirish">
+                    <i data-lucide="panel-left-close"></i>
+                </button>
+            </div>
+
+            <nav class="sidebar-nav">
+                <div class="sidebar-section-title">Asosiy menyu</div>
+                <a href="{% url 'dashboard' %}" class="sidebar-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
+                    <i data-lucide="layout-dashboard"></i>
+                    <span>Bosh sahifa</span>
+                </a>
+                <a href="{% url 'projects:list' %}" class="sidebar-link {% if request.resolver_match.app_name == 'projects' and request.resolver_match.url_name != 'showcase_settings' %}active{% endif %}">
+                    <i data-lucide="folder-kanban"></i>
+                    <span>Obyektlar</span>
+                </a>
+
+                <div class="sidebar-section-title">Bozor & Hamkorlar</div>
+                <a href="{% url 'electricians:list' %}" class="sidebar-link {% if request.resolver_match.app_name == 'electricians' and request.resolver_match.url_name == 'list' %}active{% endif %}">
+                    <i data-lucide="users"></i>
+                    <span>Elektriklar bozori</span>
+                </a>
+
+                {% if user.is_administrator %}
+                <div class="sidebar-section-title">Bosh elektrik boshqaruvi</div>
+                <a href="{% url 'accounts:manage_electricians' %}" class="sidebar-link {% if request.resolver_match.url_name == 'manage_electricians' %}active{% endif %}">
+                    <i data-lucide="users-round"></i>
+                    <span>Elektriklarni boshqarish</span>
+                    {% if pending_electrician_count %}<span class="badge badge--warning">{{ pending_electrician_count }}</span>{% endif %}
+                </a>
+                <a href="{% url 'accounts:payment_settings' %}" class="sidebar-link {% if request.resolver_match.url_name == 'payment_settings' %}active{% endif %}">
+                    <i data-lucide="credit-card"></i>
+                    <span>To'lov rekvizitlari</span>
+                </a>
+                <a href="{% url 'projects:showcase_settings' %}" class="sidebar-link {% if request.resolver_match.url_name == 'showcase_settings' %}active{% endif %}">
+                    <i data-lucide="star"></i>
+                    <span>Bosh sahifa ishlari</span>
+                </a>
+                {% endif %}
+                <div class="sidebar-section-title">Shaxsiy kabinet</div>
+                {% if user.can_use_electrician_tools %}
+                <a href="{% url 'electricians:my_profile' %}" class="sidebar-link {% if request.resolver_match.url_name == 'my_profile' or request.resolver_match.url_name == 'edit_profile' %}active{% endif %}">
+                    <i data-lucide="user-check"></i>
+                    <span>Elektrik profili</span>
+                </a>
+                <a href="{% url 'electricians:clients' %}" class="sidebar-link {% if request.resolver_match.url_name == 'clients' or request.resolver_match.url_name == 'create_client' %}active{% endif %}">
+                    <i data-lucide="contact-round"></i>
+                    <span>Mijozlarim</span>
+                </a>
+                <a href="{% url 'electricians:inquiries' %}" class="sidebar-link {% if request.resolver_match.url_name == 'inquiries' %}active{% endif %}">
+                    <i data-lucide="inbox"></i>
+                    <span>Mijoz so'rovlari</span>
+                    {% if unread_inquiry_count %}<span class="badge badge--warning">{{ unread_inquiry_count }}</span>{% endif %}
+                </a>
+                {% endif %}
+                <a href="{% url 'accounts:settings' %}" class="sidebar-link {% if request.resolver_match.url_name == 'settings' %}active{% endif %}">
+                    <i data-lucide="settings"></i>
+                    <span>Sozlamalar</span>
+                </a>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="sidebar-user-avatar">
+                    {{ user.first_name|default:user.username|slice:":1"|upper }}
+                </div>
+                <div class="sidebar-user-info">
+                    <div class="sidebar-user-name">{{ user.get_full_name|default:user.username }}</div>
+                    <div class="sidebar-user-role">
+                        <i data-lucide="shield-check" style="width:13px;height:13px;"></i>
+                        {{ user.role_label }}{% if user.is_administrator %} (Administrator){% endif %}
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- ==================== MAIN CONTENT WRAPPER ==================== -->
+        <div class="main-wrapper">
+            <!-- Header Bar -->
+            <header class="header">
+                <div class="header-left">
+                    <button class="header-mobile-toggle btn--ghost" aria-label="Menyuni ochish">
+                        <i data-lucide="menu"></i>
+                    </button>
+                    <div class="header-breadcrumbs">
+                        <a href="{% url 'dashboard' %}"><i data-lucide="home" style="width:15px;height:15px;"></i></a>
+                        <span class="sep">/</span>
+                        <span class="current">{% block page_title %}Dashboard{% endblock %}</span>
+                    </div>
+                </div>
+
+                <div class="header-right">
+                    <form class="header-search" method="get" action="{% url 'projects:list' %}" role="search">
+                        <i data-lucide="search" class="search-icon"></i>
+                        <input type="search" name="q" placeholder="Obyekt nomi yoki manzil..." aria-label="Obyekt qidirish">
+                    </form>
+
+                    <!-- Theme Toggle -->
+                    <button class="header-action-btn theme-toggle-btn" aria-label="Mavzuni o'zgartirish" title="Tun / Kun rejimi">
+                        <span class="theme-icon-moon"><i data-lucide="moon"></i></span>
+                        <span class="theme-icon-sun" style="display:none;"><i data-lucide="sun"></i></span>
+                    </button>
+
+                    <!-- User Avatar & Dropdown -->
+                    <div class="header-user-menu">
+                        <button class="header-user-trigger" data-dropdown-toggle="user-dropdown-menu" aria-label="Foydalanuvchi menyusi">
+                            <div class="header-avatar">
+                                {{ user.first_name|default:user.username|slice:":1"|upper }}
+                            </div>
+                            <i data-lucide="chevron-down" style="width:16px;height:16px;color:var(--text-muted);"></i>
+                        </button>
+                        <div class="header-user-dropdown" id="user-dropdown-menu">
+                            <div style="padding: 8px 12px; border-bottom: 1px solid var(--border-color); margin-bottom: 4px;">
+                                <div style="font-weight: 600; font-size: 0.9rem; color: var(--text-primary);">{{ user.get_full_name|default:user.username }}</div>
+                                <div style="font-size: 0.75rem; color: var(--text-muted);">{{ user.email|default:"Foydalanuvchi" }}</div>
+                            </div>
+                            {% if user.can_use_electrician_tools %}
+                            <a href="{% url 'electricians:my_profile' %}" class="dropdown-item">
+                                <i data-lucide="user"></i> Elektrik profili
+                            </a>
+                            {% endif %}
+                            <a href="{% url 'accounts:settings' %}" class="dropdown-item">
+                                <i data-lucide="settings"></i> Sozlamalar
+                            </a>
+                            <div class="dropdown-divider"></div>
+                            <form method="post" action="{% url 'accounts:logout' %}">
+                                {% csrf_token %}
+                                <button type="submit" class="dropdown-item" style="color:var(--status-danger);">
+                                    <i data-lucide="log-out"></i> Tizimdan chiqish
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Alerts / Messages -->
+            {% if messages %}
+            <div class="messages-container">
+                {% for message in messages %}
+                <div class="msg-banner msg-banner--{% if message.tags == 'error' %}danger{% else %}{{ message.tags|default:'info' }}{% endif %}">
+                    <i data-lucide="{% if message.tags == 'success' %}check-circle{% elif message.tags == 'error' or message.tags == 'danger' %}alert-circle{% else %}info{% endif %}"></i>
+                    <span>{{ message }}</span>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <!-- Main Content Container -->
+            <main class="page-container">
+                {% block content %}{% endblock %}
+            </main>
+
+            <!-- Elektrik kabineti Footer -->
+            <footer class="app-footer">
+                <div>
+                    <strong>NURVOLT</strong> · Electrical Digital Passport & Engineering Platform © 2026
+                </div>
+                <div>
+                    <span style="display:inline-flex;align-items:center;gap:6px;">
+                        <span style="width:8px;height:8px;border-radius:50%;background:var(--status-active);"></span>
+                        Tizim faol va himoyalangan
+                    </span>
+                </div>
+            </footer>
+        </div>
+        <nav class="mobile-bottom-nav" aria-label="Asosiy menyu">
+            <a href="{% url 'dashboard' %}" class="mobile-bottom-nav__item {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}" {% if request.resolver_match.url_name == 'dashboard' %}aria-current="page"{% endif %}>
+                <i data-lucide="layout-dashboard"></i>
+                <span>Bosh sahifa</span>
+            </a>
+            <a href="{% url 'projects:list' %}" class="mobile-bottom-nav__item {% if request.resolver_match.app_name == 'projects' %}active{% endif %}" {% if request.resolver_match.app_name == 'projects' %}aria-current="page"{% endif %}>
+                <i data-lucide="folder-kanban"></i>
+                <span>Obyektlar</span>
+            </a>
+            <a href="{% if user.can_use_electrician_tools %}{% url 'electricians:my_profile' %}{% else %}{% url 'accounts:profile_edit' %}{% endif %}" class="mobile-bottom-nav__item {% if request.resolver_match.app_name == 'electricians' or request.resolver_match.url_name == 'profile_edit' %}active{% endif %}" {% if request.resolver_match.app_name == 'electricians' or request.resolver_match.url_name == 'profile_edit' %}aria-current="page"{% endif %}>
+                <i data-lucide="user-round"></i>
+                <span>Profil</span>
+            </a>
+            <a href="{% url 'accounts:settings' %}" class="mobile-bottom-nav__item {% if request.resolver_match.url_name == 'settings' %}active{% endif %}" {% if request.resolver_match.url_name == 'settings' %}aria-current="page"{% endif %}>
+                <i data-lucide="settings-2"></i>
+                <span>Sozlamalar</span>
+            </a>
+        </nav>
+        {% else %}
+        <!-- Public or Unauthenticated view container -->
+        <div style="width:100%;min-height:100vh;display:flex;flex-direction:column;">
+            <header class="header public-header" style="justify-content:space-between;">
+                <a href="{% url 'home' %}" style="display:flex;align-items:center;gap:10px;font-weight:800;font-size:1.2rem;color:var(--text-primary);">
+                    <div style="background:var(--blue-500);color:#fff;width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;">
+                        <i data-lucide="zap"></i>
+                    </div>
+                    NURVOLT
+                </a>
+                <div class="public-header__actions">
+                    <button class="header-action-btn theme-toggle-btn" aria-label="Mavzuni o'zgartirish">
+                        <span class="theme-icon-moon"><i data-lucide="moon"></i></span>
+                        <span class="theme-icon-sun" style="display:none;"><i data-lucide="sun"></i></span>
+                    </button>
+                    <a href="{% url 'electricians:list' %}" class="btn btn--ghost btn--sm" style="display:inline-flex;align-items:center;gap:4px;">
+                        <i data-lucide="users" style="width:14px;height:14px;"></i> Elektriklar
+                    </a>
+                    <a href="{% url 'accounts:login' %}" class="btn btn--secondary btn--sm">Kirish</a>
+                    <a href="{% url 'accounts:register' %}" class="btn btn--primary btn--sm public-header__register">Ro'yxatdan o'tish</a>
+                </div>
+            </header>
+
+            {% if messages %}
+            <div class="messages-container">
+                {% for message in messages %}
+                <div class="msg-banner msg-banner--{{ message.tags|default:'info' }}">
+                    <i data-lucide="info"></i>
+                    <span>{{ message }}</span>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <main class="page-container" style="flex:1;">
+                {% block content_public %}{% endblock %}
+            </main>
+
+            <footer class="app-footer">
+                <div>NURVOLT · Har bir bino o'z raqamli elektr pasportiga ega bo'lsin.</div>
+                <div>© 2026 NURVOLT</div>
+            </footer>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Main JavaScript Core -->
+    <script src="{% static 'js/app.js' %}?v=3"></script>
+    <script src="{% static 'js/gallery.js' %}?v=3" defer></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            if (window.lucide) {
+                window.lucide.createIcons();
+            }
+        });
+    </script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

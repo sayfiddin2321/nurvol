@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}To'lov rekvizitlari — NURVOLT{% endblock %}
+{% block page_title %}To'lov rekvizitlari{% endblock %}
+
+{% block content %}
+<div class="dashboard-welcome">
+    <div>
+        <h1 style="font-size:1.75rem;font-weight:800;margin:0;">To'lov rekvizitlari</h1>
+        <p class="dashboard-welcome__subtitle">To'lov rekvizitlari, bosh sahifadagi aloqa raqamlari va tarif narxlari.</p>
+    </div>
+</div>
+
+<div class="card" style="max-width:680px;">
+    <form method="post">
+        {% csrf_token %}
+        {% for field in form %}
+        <div class="form-group">
+            <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
+            {{ field }}
+            {% for error in field.errors %}<small style="display:block;margin-top:6px;color:var(--danger);">{{ error }}</small>{% endfor %}
+        </div>
+        {% endfor %}
+        <p style="color:var(--text-muted);font-size:.85rem;">Telegram username'ni @ belgisi bilan yoki belgisisiz kiriting.</p>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;">
+            <button type="submit" class="btn btn--primary">Saqlash</button>
+            <a href="{% url 'accounts:manage_electricians' %}" class="btn btn--secondary">Elektriklar ro'yxatiga qaytish</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

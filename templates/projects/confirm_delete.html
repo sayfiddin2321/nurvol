@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}Loyihani o'chirishni tasdiqlang — VoltPass{% endblock %}
+{% block page_title %}O'chirishni tasdiqlash{% endblock %}
+
+{% block content %}
+<div style="max-width:540px;margin:40px auto;">
+    <div class="card" style="padding:36px;text-align:center;border-top:4px solid var(--status-danger);">
+        <div style="width:68px;height:68px;border-radius:50%;background:rgba(220,53,69,0.12);color:var(--status-danger);display:inline-flex;align-items:center;justify-content:center;margin-bottom:20px;">
+            <i data-lucide="alert-triangle" style="width:34px;height:34px;"></i>
+        </div>
+
+        <h1 style="font-size:1.45rem;font-weight:800;letter-spacing:-0.02em;margin-bottom:12px;color:var(--text-primary);">
+            Elektr pasportini o'chirmoqchimisiz?
+        </h1>
+
+        <p style="font-size:0.95rem;color:var(--text-secondary);line-height:1.6;margin-bottom:24px;">
+            <strong style="color:var(--text-primary);">{{ project.name }}</strong> ob'ekti va unga tegishli barcha shitlar, kabellar, liniyalar va QR kodlar qayta tiklanmaydigan qilib butunlay o'chiriladi.
+        </p>
+
+        <form method="post" style="display:flex;flex-direction:column;gap:12px;">
+            {% csrf_token %}
+            <button type="submit" class="btn btn--danger btn--lg" style="width:100%;">
+                <i data-lucide="trash-2"></i> Ha, loyihani butunlay o'chirish
+            </button>
+            <a href="{% url 'projects:detail' project.pk %}" class="btn btn--secondary btn--lg" style="width:100%;">
+                Bekor qilish
+            </a>
+        </form>
+    </div>
+</div>
+{% endblock %}

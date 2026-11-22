@@ -1,0 +1,14 @@
+<section class="qr-passport__contact" aria-label="Elektrik bilan bog'lanish">
+<h2>Elektrik bilan bog'lanish</h2>
+<div class="contact-person">
+{% if electrician_profile.avatar %}<img class="contact-avatar" src="{{ electrician_profile.avatar.url }}" alt="" width="56" height="56" loading="lazy">{% else %}<span class="contact-avatar contact-initial">{{ project.electrician.first_name|default:project.electrician.username|slice:':1'|upper }}</span>{% endif %}
+<div><strong>{{ project.electrician.get_full_name|default:project.electrician.username }}</strong>{% if electrician_profile.company_name %}<p class="muted">{{ electrician_profile.company_name }}</p>{% endif %}{% if electrician_profile.is_verified %}<span class="badge badge--success">Tasdiqlangan</span>{% endif %}</div>
+</div>
+<div class="action-row contact-actions">
+{% if electrician_profile.public_phone_url %}<a class="btn btn--primary" href="{{ electrician_profile.public_phone_url }}"><i data-lucide="phone" aria-hidden="true"></i>{{ project.electrician.phone }}</a>{% endif %}
+{% if electrician_profile.public_telegram_url %}<a class="btn btn--secondary" href="{{ electrician_profile.public_telegram_url }}" target="_blank" rel="noopener noreferrer"><i data-lucide="send" aria-hidden="true"></i>Telegram</a>{% endif %}
+{% if electrician_profile.public_instagram_url %}<a class="btn btn--secondary" href="{{ electrician_profile.public_instagram_url }}" target="_blank" rel="noopener noreferrer"><i data-lucide="instagram" aria-hidden="true"></i>Instagram</a>{% endif %}
+</div>
+{% if not electrician_profile.public_phone_url and not electrician_profile.public_telegram_url and not electrician_profile.public_instagram_url %}<p class="muted">Aloqa ma'lumoti ommaga ochilmagan.</p>{% endif %}
+</section>
+

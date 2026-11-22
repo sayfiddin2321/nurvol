@@ -1,0 +1,15 @@
+{
+  "checks": [
+    "All seven administrator and electrician workspace links are visible together",
+    "Every restored menu destination opens successfully",
+    "Administrator can edit and save payment details",
+    "New electrician sees the saved administrator payment details",
+    "Electrician can upload a receipt and submit the payment request",
+    "Admin receives the payment request and approval activates the electrician",
+    "Screen and A4 print show exactly one QR sticker",
+    "Restored workspace and payment settings fit mobile screens",
+    "No JavaScript errors or failed HTTP responses"
+  ],
+  "errors": [],
+  "failed_responses": []
+}

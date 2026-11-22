@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}{{ project.name }} — VoltPass{% endblock %}
+{% block page_title %}{{ project.name }}{% endblock %}
+{% block body_class %}project-detail-body{% endblock %}
+{% block extra_js %}<script src="{% static 'js/qr.js' %}?v=4" defer></script>{% endblock %}
+{% block content %}
+<div class="project-detail-page">
+<header class="workspace-heading">
+    <div><p class="eyebrow">OBYEKT</p><h1>{{ project.name }}</h1>{% if project.address %}<p class="muted">{{ project.address }}</p>{% endif %}</div>
+    {% if can_edit %}<div class="action-row">
+        <a class="btn btn--primary" href="{% url 'documents:image_upload' project.pk %}"><i data-lucide="image-plus"></i>Rasm yuklash</a>
+        <a class="btn btn--secondary" href="{% url 'projects:edit' project.pk %}">Tahrirlash</a>
+    </div>{% endif %}
+</header>
+{% if project.description %}<div class="passport-description">{{ project.description|linebreaks }}</div>{% endif %}
+<section class="passport-section" id="tab-images">
+    <div class="section-heading"><h2>Rasmlar</h2><span class="muted">{{ gallery_page.paginator.count }} ta rasm</span></div>
+    {% include "documents/_gallery.html" %}
+    {% if not gallery_page.object_list %}<div class="workspace-empty"><i data-lucide="images"></i><h3>Hali rasmlar yo'q</h3><p>Telefondan yoki kompyuterdan bir nechta rasm yuklang.</p>{% if can_edit %}<a class="btn btn--primary" href="{% url 'documents:image_upload' project.pk %}">Rasm yuklash</a>{% endif %}</div>{% endif %}
+</section>
+{% if can_edit %}
+<section class="passport-section" id="qr" aria-labelledby="qr-heading">
+    <h2 id="qr-heading">QR orqali ulashish</h2>
+    {% if project.is_public and building_qr.is_active %}
+    <div class="qr-workspace">
+        <img width="200" height="200" src="{% url 'qrcodes:image' building_qr.token %}" alt="{{ project.name }} QR kodi">
+        <div><p>QR kodni skanerlagan odam rasmlarni akkauntsiz ko'radi. Yangi rasmlar ham shu QR orqali ochiladi.</p>
+            <div class="action-row">
+                <button type="button" class="btn btn--primary" data-qr-share="{{ share_url }}">QR orqali ulashish</button>
+                <a class="btn btn--secondary" href="{% url 'qrcodes:image' building_qr.token %}" target="_blank" rel="noopener">QR kodni ko'rish</a>
+                <a class="btn btn--secondary" href="{% url 'qrcodes:download' building_qr.token %}">QR yuklab olish</a>
+                <a class="btn btn--secondary" href="{% url 'qrcodes:print' project.pk %}" target="_blank" rel="noopener">Stiker chop etish</a>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <p>Obyekt rasmlarini QR havolasi orqali ulashing.</p>
+    <form method="post" action="{% url 'projects:share' project.pk %}">{% csrf_token %}<button type="submit" class="btn btn--primary">QR orqali ulashish</button></form>
+    {% endif %}
+</section>
+<details class="workspace-section project-danger"><summary>Obyektni o'chirish</summary><div class="workspace-section__body"><p>Obyekt va unga tegishli rasmlar o'chiriladi.</p><a class="btn btn--secondary field-error" href="{% url 'projects:delete' project.pk %}">Obyektni o'chirish</a></div></details>
+{% endif %}
+</div>
+{% endblock %}

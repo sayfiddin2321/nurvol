@@ -1,0 +1,313 @@
+{% extends "base.html" %}
+{% block title %}Boshqaruv paneli — NURVOLT{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
+
+{% block content %}
+<!-- Welcome & Action Header -->
+<div class="dashboard-welcome">
+    <div>
+        <div style="display:flex;align-items:center;gap:10px;">
+            <h1 style="font-size:1.75rem;font-weight:800;letter-spacing:-0.03em;margin:0;">
+                Salom, {{ user.first_name|default:user.username }} 👋
+            </h1>
+            <span class="badge badge--cyan">
+                <i data-lucide="zap" style="width:13px;height:13px;"></i>
+                {{ user.role_label }}
+            </span>
+        </div>
+        <p class="dashboard-welcome__subtitle">
+            NURVOLT muhandislik tizimining bugungi operatsion holati va statistikasi
+        </p>
+    </div>
+    
+    <div class="dashboard-welcome__actions">
+        {% if user.is_administrator %}
+        <a href="{% url 'accounts:manage_electricians' %}" class="btn btn--secondary">
+            <i data-lucide="users-round"></i> Elektriklarni boshqarish
+        </a>
+        {% endif %}
+        <a href="{% url 'projects:list' %}" class="btn btn--secondary">
+            <i data-lucide="list-filter"></i> Loyihalar arxivi
+        </a>
+        {% if user.can_use_electrician_tools %}
+        <a href="{% url 'projects:create' %}" class="btn btn--primary">
+            <i data-lucide="plus-circle"></i> Yangi elektr pasporti
+        </a>
+        {% endif %}
+    </div>
+</div>
+
+<!-- ==================== 1. KPI STATISTIC CARDS ==================== -->
+<div class="stats-grid">
+    <!-- Card 1: Jami loyihalar -->
+    <div class="stat-card">
+        <div class="stat-card-header">
+            <span class="stat-card-title">Jami loyihalar</span>
+            <div class="stat-card-icon">
+                <i data-lucide="folder-kanban"></i>
+            </div>
+        </div>
+        <div class="stat-card-value">{{ stats.total|default:"0" }}</div>
+        <div class="stat-card-meta">
+            <span class="stat-card-trend-up">
+                <i data-lucide="trending-up" style="width:14px;height:14px;"></i> Barcha ob'ektlar
+            </span>
+            <span style="color:var(--text-muted);">· tizimda qayd etilgan</span>
+        </div>
+    </div>
+
+    <!-- Card 2: Jarayonda -->
+    <div class="stat-card">
+        <div class="stat-card-header">
+            <span class="stat-card-title">Jarayondagi montaj</span>
+            <div class="stat-card-icon" style="background-color:var(--status-warning-bg);color:var(--status-warning);">
+                <i data-lucide="activity"></i>
+            </div>
+        </div>
+        <div class="stat-card-value" style="color:var(--status-warning);">{{ stats.in_progress|default:"0" }}</div>
+        <div class="stat-card-meta">
+            <span class="badge badge--warning">Faol montaj bosqichida</span>
+        </div>
+    </div>
+
+    <!-- Card 3: Tugallangan -->
+    <div class="stat-card">
+        <div class="stat-card-header">
+            <span class="stat-card-title">Tugallangan pasportlar</span>
+            <div class="stat-card-icon" style="background-color:var(--status-active-bg);color:var(--status-active);">
+                <i data-lucide="check-circle-2"></i>
+            </div>
+        </div>
+        <div class="stat-card-value" style="color:var(--status-active);">{{ stats.completed|default:"0" }}</div>
+        <div class="stat-card-meta">
+            <span class="badge badge--success">QR pasport berilgan</span>
+        </div>
+    </div>
+
+    <!-- Card 4: Qoralamalar -->
+    <div class="stat-card">
+        <div class="stat-card-header">
+            <span class="stat-card-title">Qoralama holatda</span>
+            <div class="stat-card-icon" style="background-color:var(--status-neutral-bg);color:var(--status-neutral);">
+                <i data-lucide="file-edit"></i>
+            </div>
+        </div>
+        <div class="stat-card-value" style="color:var(--text-secondary);">{{ stats.draft|default:"0" }}</div>
+        <div class="stat-card-meta">
+            <span style="color:var(--text-muted);font-size:0.82rem;">Loyiha kiritilmoqda</span>
+        </div>
+    </div>
+</div>
+
+<!-- ==================== 2. MAIN SPLIT SECTION ==================== -->
+<div class="dashboard-main-grid">
+    
+    <!-- Left: So'nggi loyihalar jadvali -->
+    <div class="card" style="padding:0;overflow:hidden;">
+        <div style="padding:20px 24px;border-bottom:1px solid var(--border-color);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
+            <div>
+                <h2 style="font-size:1.15rem;font-weight:700;margin:0;display:flex;align-items:center;gap:10px;">
+                    <i data-lucide="clock" style="color:var(--blue-500);width:20px;height:20px;"></i>
+                    So'nggi elektr pasportlari
+                </h2>
+                <p style="font-size:0.83rem;color:var(--text-muted);margin-top:2px;">
+                    Eng oxirgi kiritilgan va yangilangan ob'ektlar
+                </p>
+            </div>
+            <a href="{% url 'projects:list' %}" class="btn btn--sm btn--ghost" style="color:var(--blue-500);">
+                Barcha loyihalar <i data-lucide="arrow-right" style="width:14px;height:14px;"></i>
+            </a>
+        </div>
+
+                                <div class="dashboard-project-cards">
+                                    {% for p in recent %}
+                                    <a href="{% url 'projects:detail' p.pk %}" class="dashboard-project-card">
+                                        <div class="dashboard-project-card__top">
+                                            <span class="dashboard-project-card__icon"><i data-lucide="building-2"></i></span>
+                                            <span class="badge badge--{{ p.status }}"><span class="badge-dot"></span>{{ p.get_status_display }}</span>
+                                        </div>
+                                        <strong>{{ p.name }}</strong>
+                                        <span class="dashboard-project-card__address">{{ p.address|default:"Manzil kiritilmagan"|truncatechars:45 }}</span>
+                                        <span class="dashboard-project-card__meta">{{ p.get_project_type_display }} <span aria-hidden="true">·</span> {{ p.created_at|date:"d.m.Y" }}</span>
+                                        <span class="dashboard-project-card__link">Pasportni ochish <i data-lucide="arrow-up-right"></i></span>
+                                    </a>
+                                    {% empty %}
+                                    <div class="dashboard-project-empty">
+                                        Hali loyiha yo'q. Birinchi loyihani yaratish uchun yuqoridagi tugmadan foydalaning.
+                                    </div>
+                                    {% endfor %}
+                                </div>
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Loyiha nomi & Ob'ekt</th>
+                        <th>Bino turi</th>
+                        <th>Holati</th>
+                        <th>Sana</th>
+                        <th style="text-align:right;">Amallar</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for p in recent %}
+                    <tr>
+                        <td>
+                            <div style="display:flex;align-items:center;gap:12px;">
+                                <div style="width:36px;height:36px;border-radius:8px;background:var(--blue-50);color:var(--blue-500);display:flex;align-items:center;justify-content:center;font-weight:700;">
+                                    <i data-lucide="building-2" style="width:18px;height:18px;"></i>
+                                </div>
+                                <div>
+                                    <a href="{% url 'projects:detail' p.pk %}" style="font-weight:700;color:var(--text-primary);display:block;">
+                                        {{ p.name }}
+                                    </a>
+                                    <span style="font-size:0.78rem;color:var(--text-muted);">
+                                        {{ p.address|default:"Manzil kiritilmagan"|truncatechars:28 }}
+                                    </span>
+                                </div>
+
+                            </div>
+                        </td>
+                        <td>
+                            <span class="table-tech-code">{{ p.get_project_type_display|default:p.project_type }}</span>
+                        </td>
+                        <td>
+                            <span class="badge badge--{{ p.status }}">
+                                <span class="badge-dot"></span>
+                                {{ p.get_status_display }}
+                            </span>
+                        </td>
+                        <td style="font-size:0.85rem;color:var(--text-muted);font-family:var(--font-mono);">
+                            {{ p.created_at|date:"d.m.Y" }}
+                        </td>
+                        <td style="text-align:right;">
+                            <a href="{% url 'projects:detail' p.pk %}" class="btn btn--sm btn--secondary" title="Pasportni ochish">
+                                Texnik pasport <i data-lucide="chevron-right" style="width:14px;height:14px;"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5">
+                            <div class="empty-state">
+                                <div class="empty-state-icon">
+                                    <i data-lucide="folder-plus"></i>
+                                </div>
+                                <div class="empty-state-title">Hali loyihangiz yo'q</div>
+                                <div class="empty-state-text">
+                                    {% if user.can_use_electrician_tools %}
+                                        Birinchi loyihani yarating va barcha elektr jihozlarini raqamlashtiring.
+                                    {% else %}
+                                        Sizga biriktirilgan loyihalar hali yo'q. Elektrikingizdan NURVOLT loyihasiga sizni mijoz sifatida qo'shishni so'rang.
+                                    {% endif %}
+                                </div>
+                                {% if user.can_use_electrician_tools %}
+                                <a href="{% url 'projects:create' %}" class="btn btn--primary btn--sm">
+                                    <i data-lucide="plus"></i> Yangi loyiha yaratish
+                                </a>
+                                {% else %}
+                                <a href="{% url 'accounts:settings' %}" class="btn btn--secondary btn--sm">
+                                    <i data-lucide="settings"></i> Akkaunt sozlamalari
+                                </a>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Right: Tezkor muhandislik amallari & QR Skaner grafigi -->
+    <div style="display:flex;flex-direction:column;gap:24px;">
+        
+        <!-- Tezkor amallar -->
+        <div class="card">
+            <h2 class="card-title" style="margin-bottom:14px;">
+                <i data-lucide="sparkles" style="color:var(--cyan-500);width:18px;height:18px;"></i>
+                Tezkor amallar
+            </h2>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+                {% if user.can_use_electrician_tools %}
+                <a href="{% url 'projects:create' %}" class="btn btn--secondary" style="height:86px;flex-direction:column;text-align:center;padding:12px 8px;gap:6px;">
+                    <i data-lucide="folder-plus" style="width:24px;height:24px;color:var(--blue-500);"></i>
+                    <span style="font-size:0.82rem;">Yangi loyiha</span>
+                </a>
+                {% endif %}
+
+                {% if recent %}
+                <a href="{% url 'qrcodes:manage' recent.0.pk %}" class="btn btn--secondary" style="height:86px;flex-direction:column;text-align:center;padding:12px 8px;gap:6px;">
+                    <i data-lucide="qr-code" style="width:24px;height:24px;color:var(--cyan-500);"></i>
+                    <span style="font-size:0.82rem;">QR kod markazi</span>
+                </a>
+                {% else %}
+                <a href="{% url 'projects:list' %}" class="btn btn--secondary" style="height:86px;flex-direction:column;text-align:center;padding:12px 8px;gap:6px;">
+                    <i data-lucide="qr-code" style="width:24px;height:24px;color:var(--cyan-500);"></i>
+                    <span style="font-size:0.82rem;">QR kodlar</span>
+                </a>
+                {% endif %}
+
+                {% if user.is_electrician or user.role == 'electrician' %}
+                <a href="{% url 'electricians:my_profile' %}" class="btn btn--secondary" style="height:86px;flex-direction:column;text-align:center;padding:12px 8px;gap:6px;">
+                    <i data-lucide="award" style="width:24px;height:24px;color:var(--success);"></i>
+                    <span style="font-size:0.82rem;">Mutaxassis profili</span>
+                </a>
+                <a href="{% url 'electricians:inquiries' %}" class="btn btn--secondary" style="height:86px;flex-direction:column;text-align:center;padding:12px 8px;gap:6px;">
+                    <i data-lucide="inbox" style="width:24px;height:24px;color:var(--blue-500);"></i>
+                    <span style="font-size:0.82rem;">Mijoz so'rovlari{% if unread_inquiry_count %} ({{ unread_inquiry_count }}){% endif %}</span>
+                </a>
+                {% endif %}
+
+                <a href="{% url 'accounts:settings' %}" class="btn btn--secondary" style="height:86px;flex-direction:column;text-align:center;padding:12px 8px;gap:6px;">
+                    <i data-lucide="sliders" style="width:24px;height:24px;color:var(--text-muted);"></i>
+                    <span style="font-size:0.82rem;">Tizim sozlamalari</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- QR Faollik (Oxirgi 7 kun) -->
+        <div class="card">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+                <div>
+                    <h2 class="card-title" style="margin:0;">
+                        <i data-lucide="smartphone" style="color:var(--blue-500);width:18px;height:18px;"></i>
+                        QR skanerlar auditi
+                    </h2>
+                    <div style="font-size:0.8rem;color:var(--text-muted);margin-top:2px;">Oxirgi 7 kunlik skanerlashlar</div>
+                </div>
+                <span class="badge badge--cyan" style="font-family:var(--font-mono);">
+                    {{ scan_total|default:"0" }} skan
+                </span>
+            </div>
+
+            <!-- Mini Bar Chart -->
+            <div style="display:flex;align-items:flex-end;gap:10px;height:130px;padding:10px 0 0;border-bottom:1px solid var(--border-color);">
+                {% for item in scan_activity %}
+                <div style="flex:1;display:flex;flex-direction:column;align-items:center;height:100%;justify-content:flex-end;gap:6px;">
+                    <span style="font-size:0.72rem;font-weight:700;color:var(--text-muted);font-family:var(--font-mono);">
+                        {{ item.count }}
+                    </span>
+                    <div style="width:100%;max-width:26px;background:linear-gradient(180deg, var(--blue-500), var(--cyan-500));height:{{ item.height }}%;border-radius:6px 6px 0 0;box-shadow:0 2px 6px rgba(0,118,232,0.3);transition:height 0.3s ease;" title="{{ item.date|date:'d-M' }}: {{ item.count }} skan"></div>
+                    <span style="font-size:0.72rem;font-weight:600;color:var(--text-secondary);text-transform:uppercase;">
+                        {{ item.label }}
+                    </span>
+                </div>
+                {% empty %}
+                <div style="width:100%;text-align:center;color:var(--text-muted);font-size:0.85rem;padding:30px 0;">
+                    Skanerlash ma'lumotlari mavjud emas
+                </div>
+                {% endfor %}
+            </div>
+
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-top:12px;font-size:0.78rem;color:var(--text-muted);">
+                <span>Bino va shit QR kodlari orqali</span>
+                <span style="color:var(--status-active);font-weight:600;display:inline-flex;align-items:center;gap:4px;">
+                    <i data-lucide="shield-check" style="width:12px;height:12px;"></i> Real vaqt monitoringi
+                </span>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+{% endblock %}

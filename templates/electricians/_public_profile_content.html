@@ -1,0 +1,263 @@
+<div style="max-width:840px;margin:30px auto;padding:0 16px;">
+    <!-- Main Profile Card -->
+    <div class="card glass-card" style="padding:32px;box-shadow:var(--shadow-lg);margin-bottom:24px;border-radius:24px;">
+        <div style="display:flex;align-items:center;gap:24px;margin-bottom:24px;flex-wrap:wrap;">
+            {% if profile.avatar %}
+                <img src="{{ profile.avatar.url }}" alt="{{ profile.user.get_full_name|default:profile.user.username }}" style="width:96px;height:96px;border-radius:20px;object-fit:cover;border:3px solid var(--blue-500);box-shadow:0 8px 24px rgba(37,99,235,0.2);">
+            {% else %}
+                <div style="width:96px;height:96px;border-radius:20px;background:linear-gradient(135deg, var(--navy-900), var(--blue-500));color:#fff;display:flex;align-items:center;justify-content:center;font-size:2.4rem;font-weight:800;box-shadow:0 8px 24px rgba(37,99,235,0.2);">
+                    {{ profile.user.first_name|default:profile.user.username|slice:":1"|upper }}
+                </div>
+            {% endif %}
+
+            <div style="flex:1;min-width:260px;">
+                <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;flex-wrap:wrap;">
+                    <h1 style="font-size:1.85rem;font-weight:800;letter-spacing:-0.03em;margin:0;">
+                        {{ profile.user.get_full_name|default:profile.user.username }}
+                    </h1>
+                    {% if profile.is_verified %}
+                    <span class="badge badge--success">
+                        <i data-lucide="shield-check" style="width:13px;height:13px;"></i> Tasdiqlangan muhandis
+                    </span>
+                    {% endif %}
+                </div>
+                <div style="font-size:1.05rem;color:var(--cyan-500);font-weight:600;">
+                    {{ profile.specialization|default:"Bosh elektromontaj ustasi" }}
+                </div>
+                <div style="display:flex;align-items:center;gap:16px;margin-top:8px;flex-wrap:wrap;font-size:0.88rem;color:var(--text-muted);">
+                    <span style="display:flex;align-items:center;gap:6px;">
+                        <i data-lucide="map-pin" style="width:15px;height:15px;color:var(--blue-500);"></i>
+                        {{ profile.city|default:"O'zbekiston" }}
+                    </span>
+                    <span style="display:flex;align-items:center;gap:5px;color:var(--rating-text);font-weight:700;">
+                        <i data-lucide="star" style="width:15px;height:15px;fill:#f59e0b;stroke:#f59e0b;"></i>
+                        {{ profile.average_rating }}
+                        <span style="color:var(--text-muted);font-weight:400;margin-left:2px;">({{ profile.review_count }} sharh)</span>
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Technical KPI grid -->
+        <div class="tech-spec-grid" style="margin-bottom:24px;">
+            <div class="tech-spec-item">
+                <div class="tech-spec-label">Kasbiy tajriba</div>
+                <div class="tech-spec-val" style="color:var(--blue-500);">{{ profile.experience_years|default:"0" }} yil</div>
+            </div>
+            <div class="tech-spec-item">
+                <div class="tech-spec-label">Hudud</div>
+                <div class="tech-spec-val">{{ profile.city|default:"O'zbekiston" }}</div>
+            </div>
+            {% if profile.public_phone_url %}
+            <div class="tech-spec-item">
+                <div class="tech-spec-label">Telefon aloqa</div>
+                <div class="tech-spec-val">
+                    <a href="{{ profile.public_phone_url }}" style="color:var(--blue-500);text-decoration:none;">{{ profile.user.phone }}</a>
+                </div>
+            </div>
+            {% endif %}
+            {% if profile.public_telegram_url %}
+            <div class="tech-spec-item">
+                <div class="tech-spec-label">Telegram</div>
+                <div class="tech-spec-val">
+                    <a href="{{ profile.public_telegram_url }}" target="_blank" rel="noopener noreferrer" style="color:var(--cyan-500);text-decoration:none;">@{{ profile.telegram|cut:'@' }}</a>
+                </div>
+            </div>
+            {% endif %}
+            {% if profile.public_instagram_url %}<div class="tech-spec-item"><div class="tech-spec-label">Instagram</div><div class="tech-spec-val"><a href="{{ profile.public_instagram_url }}" target="_blank" rel="noopener noreferrer">{{ profile.instagram }}</a></div></div>{% endif %}
+        </div>
+
+        {% if profile.bio %}
+        <div style="border-top:1px solid var(--border-color);padding-top:20px;margin-bottom:20px;">
+            <h3 style="font-size:1rem;font-weight:700;margin-bottom:8px;color:var(--text-primary);">Mutaxassis tavsifi</h3>
+            <p style="font-size:0.92rem;color:var(--text-secondary);line-height:1.7;">
+                {{ profile.bio|linebreaksbr }}
+            </p>
+        </div>
+        {% endif %}
+
+        <div style="padding-top:16px;border-top:1px solid var(--border-color);display:flex;justify-content:space-between;align-items:center;font-size:0.85rem;color:var(--text-muted);flex-wrap:wrap;gap:10px;">
+            <span>⚡ VoltPass Elektriklar Tarmog'i</span>
+            <div style="display:flex;gap:10px;">
+                <a href="{% url 'electricians:list' %}" class="btn btn--ghost btn--sm">
+                    <i data-lucide="arrow-left" style="width:14px;height:14px;"></i> Bozordagi barcha elektriklar
+                </a>
+                {% if user == profile.user %}
+                <a href="{% url 'electricians:edit_profile' %}" class="btn btn--outline btn--sm">
+                    <i data-lucide="pencil" style="width:14px;height:14px;"></i> Profilni tahrirlash
+                </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    {% if user.is_authenticated and user.is_client and user != profile.user %}
+    <div class="card glass-card" style="padding:24px;margin-bottom:24px;">
+        <h2 style="margin:0 0 8px;font-size:1.2rem;">Elektrikka so'rov yuborish</h2>
+        <p style="margin:0 0 18px;color:var(--text-muted);">Usta sizga bog'lanishi uchun telefon raqamingiz va ish tafsilotlarini yozing.</p>
+        <form method="post" action="{% url 'electricians:send_inquiry' profile.user_id %}">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="{{ request_form.phone.id_for_label }}" class="form-label">{{ request_form.phone.label }}</label>
+                {{ request_form.phone }}
+                {% for error in request_form.phone.errors %}<small style="display:block;margin-top:5px;color:var(--danger);">{{ error }}</small>{% endfor %}
+            </div>
+            <div class="form-group">
+                <label for="{{ request_form.message.id_for_label }}" class="form-label">{{ request_form.message.label }}</label>
+                {{ request_form.message }}
+                {% for error in request_form.message.errors %}<small style="display:block;margin-top:5px;color:var(--danger);">{{ error }}</small>{% endfor %}
+            </div>
+            <button type="submit" class="btn btn--primary">
+                <i data-lucide="send"></i> So'rovni yuborish
+            </button>
+        </form>
+    </div>
+    {% elif not user.is_authenticated %}
+    <div class="card glass-card" style="padding:20px;margin-bottom:24px;text-align:center;">
+        <p style="margin:0 0 12px;color:var(--text-secondary);">Elektrikka so'rov yuborish uchun mijoz akkauntingizga kiring yoki ro'yxatdan o'ting.</p>
+        <a href="{% url 'accounts:login' %}?next={{ request.path|urlencode }}" class="btn btn--secondary btn--sm">Kirish</a>
+        <a href="{% url 'accounts:register' %}?next={{ request.path|urlencode }}" class="btn btn--primary btn--sm">Mijoz bo'lib ro'yxatdan o'tish</a>
+    </div>
+    {% endif %}
+
+    <!-- Public Projects Portfolio -->
+    {% if public_projects %}
+    <div class="card glass-card" style="padding:28px;margin-bottom:24px;border-radius:24px;">
+        <h3 style="font-size:1.15rem;font-weight:700;margin-bottom:16px;display:flex;align-items:center;gap:8px;">
+            <i data-lucide="folder-check" style="width:18px;height:18px;color:var(--blue-500);"></i>
+            Ommaviy Elektr Pasportlari (Portfolio)
+        </h3>
+        <div style="display:grid;grid-template-columns:repeat(auto-fill, minmax(260px, 1fr));gap:16px;">
+            {% for proj in public_projects %}
+            <div class="card" style="padding:16px;border:1px solid var(--border-color);background:var(--glass-surface-subtle);border-radius:14px;">
+                <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;">
+                    <h4 style="font-size:1rem;font-weight:700;margin:0;">{{ proj.name }}</h4>
+                    <span class="badge badge--success" style="font-size:0.7rem;">Ommaviy</span>
+                </div>
+                <p style="font-size:0.8rem;color:var(--text-muted);margin-bottom:12px;">
+                    {{ proj.address|default:"Manzil ko'rsatilmagan" }}
+                </p>
+                <div style="display:flex;justify-content:space-between;align-items:center;font-size:0.75rem;color:var(--text-secondary);">
+                    <span>{{ proj.get_project_type_display }}</span>
+                    {% if user.is_authenticated %}
+                    <a href="{% url 'projects:detail' proj.pk %}" class="btn btn--ghost btn--sm" style="padding:4px 8px;font-size:0.75rem;">
+                        Pasport &rarr;
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Reviews Section -->
+    <div class="card glass-card" style="padding:28px;border-radius:24px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:12px;">
+            <div>
+                <h3 style="font-size:1.2rem;font-weight:700;margin:0;display:flex;align-items:center;gap:8px;">
+                    <i data-lucide="message-square" style="width:18px;height:18px;color:var(--blue-500);"></i>
+                    Mijozlar Sharhlari va Baholari
+                </h3>
+                <div style="font-size:0.85rem;color:var(--text-muted);margin-top:4px;">
+                    Jami {{ reviews.count }} ta mijoz fikr bildirgan
+                </div>
+            </div>
+
+            <!-- Overall Rating Callout -->
+            <div style="display:flex;align-items:center;gap:8px;background:var(--warning-bg);padding:8px 16px;border-radius:12px;border:1px solid var(--warning-border);">
+                <div style="font-size:1.5rem;font-weight:800;color:var(--rating-text);line-height:1;">
+                    {{ profile.average_rating }}
+                </div>
+                <div>
+                    <div style="display:flex;gap:2px;">
+                        {% for i in "12345" %}
+                        <i data-lucide="star" style="width:13px;height:13px;fill:#f59e0b;stroke:#f59e0b;"></i>
+                        {% endfor %}
+                    </div>
+                    <div style="font-size:0.7rem;color:var(--text-muted);margin-top:2px;">5 yulduzlik shkala</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Add Review Form (if authenticated and not self) -->
+        {% if user.is_authenticated and user != profile.user %}
+        <div style="background:var(--glass-surface-subtle);border:1px solid var(--border-color);border-radius:16px;padding:20px;margin-bottom:28px;">
+            <h4 style="font-size:0.95rem;font-weight:700;margin-bottom:12px;color:var(--text-primary);display:flex;align-items:center;gap:6px;">
+                <i data-lucide="edit-3" style="width:15px;height:15px;color:var(--blue-500);"></i>
+                Usta haqida sharh va baho qoldirish
+            </h4>
+            <form method="POST" action="{% url 'electricians:add_review' profile.user_id %}">
+                {% csrf_token %}
+                <div style="display:grid;grid-template-columns:180px 1fr;gap:14px;margin-bottom:12px;align-items:start;">
+                    <div>
+                        <label style="font-size:0.8rem;font-weight:600;color:var(--text-muted);display:block;margin-bottom:4px;">
+                            Bahoingiz (1-5):
+                        </label>
+                        {{ review_form.rating }}
+                    </div>
+                    <div>
+                        <label style="font-size:0.8rem;font-weight:600;color:var(--text-muted);display:block;margin-bottom:4px;">
+                            Sharhingiz:
+                        </label>
+                        {{ review_form.comment }}
+                    </div>
+                </div>
+                <div style="text-align:right;">
+                    <button type="submit" class="btn btn--primary btn--sm">
+                        <i data-lucide="send" style="width:14px;height:14px;"></i> Sharhni yuborish
+                    </button>
+                </div>
+            </form>
+        </div>
+        {% elif not user.is_authenticated %}
+        <div style="background:rgba(37,99,235,0.06);border:1px dashed var(--blue-300);border-radius:14px;padding:16px;margin-bottom:24px;text-align:center;">
+            <p style="font-size:0.88rem;color:var(--text-secondary);margin-bottom:8px;">
+                Sharh qoldirish uchun shaxsiy kabinetingizga kiring.
+            </p>
+            <a href="{% url 'accounts:login' %}?next={{ request.path }}" class="btn btn--primary btn--sm">
+                Kirish / Ro'yxatdan o'tish
+            </a>
+        </div>
+        {% endif %}
+
+        <!-- Reviews List -->
+        {% if reviews %}
+        <div style="display:flex;flex-direction:column;gap:14px;">
+            {% for r in reviews %}
+            <div style="padding:16px;border-radius:14px;background:var(--glass-surface-subtle);border:1px solid var(--border-color);">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+                    <div style="display:flex;align-items:center;gap:10px;">
+                        <div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg, var(--blue-500), var(--cyan-500));color:#fff;display:flex;align-items:center;justify-content:center;font-size:0.85rem;font-weight:700;">
+                            {{ r.author.first_name|default:r.author.username|slice:":1"|upper }}
+                        </div>
+                        <div>
+                            <div style="font-size:0.9rem;font-weight:700;color:var(--text-primary);">
+                                {{ r.author.get_full_name|default:r.author.username }}
+                            </div>
+                            <div style="font-size:0.75rem;color:var(--text-muted);">
+                                {{ r.created_at|date:"d M Y, H:i" }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="display:flex;align-items:center;gap:3px;color:var(--rating-text);font-weight:700;font-size:0.85rem;background:var(--warning-bg);padding:4px 8px;border-radius:8px;">
+                        <span>{{ r.rating }}</span>
+                        <i data-lucide="star" style="width:12px;height:12px;fill:#f59e0b;stroke:#f59e0b;"></i>
+                    </div>
+                </div>
+
+                <p style="font-size:0.9rem;color:var(--text-secondary);line-height:1.6;margin:0;">
+                    {{ r.comment|linebreaksbr }}
+                </p>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div style="text-align:center;padding:32px 16px;color:var(--text-muted);">
+            <i data-lucide="message-square-dashed" style="width:36px;height:36px;margin:0 auto 10px;opacity:0.5;"></i>
+            <p style="font-size:0.9rem;margin:0;">Hozircha sharhlar mavjud emas. Birinchi bo'lib fikr bildiring!</p>
+        </div>
+        {% endif %}
+    </div>
+</div>

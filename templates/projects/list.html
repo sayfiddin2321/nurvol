@@ -1,0 +1,254 @@
+{% extends "base.html" %}
+{% block title %}Elektr loyihalari katalogi — VoltPass{% endblock %}
+{% block page_title %}Loyihalar{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px;margin-bottom:24px;">
+    <div>
+        <div style="display:flex;align-items:center;gap:12px;">
+            <h1 style="font-size:1.75rem;font-weight:800;letter-spacing:-0.03em;margin:0;">
+                Elektr loyihalari
+            </h1>
+            <span class="badge badge--cyan" style="font-family:var(--font-mono);font-size:0.85rem;">
+                {{ project_count|default:"0" }} ob'ekt
+            </span>
+        </div>
+        <p style="color:var(--text-muted);font-size:0.95rem;margin-top:4px;">
+            Barcha turar-joy va sanoat ob'ektlarining raqamlashtirilgan elektr pasportlari
+        </p>
+    </div>
+    {% if user.can_use_electrician_tools %}
+    <a href="{% url 'projects:create' %}" class="btn btn--primary">
+        <i data-lucide="folder-plus"></i> Yangi elektr pasporti
+    </a>
+    {% endif %}
+</div>
+
+<!-- Filter & Search Bar -->
+<div class="card project-filter-card" style="margin-bottom:24px;padding:18px 24px;">
+    <form method="get" role="search" style="display:flex;gap:14px;flex-wrap:wrap;align-items:center;justify-content:space-between;">
+        <div style="display:flex;gap:12px;flex:1;min-width:280px;max-width:420px;position:relative;">
+            <i data-lucide="search" style="position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--text-muted);width:18px;height:18px;"></i>
+            <input type="search" name="q" value="{{ search }}" class="form-control" placeholder="Loyiha nomi yoki manzil bo'yicha qidiruv..." style="padding-left:42px;">
+        </div>
+        
+        <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:center;">
+            <select class="form-control" name="status" style="width:auto;min-width:150px;" aria-label="Holat bo'yicha filter">
+                <option value="">Barcha holatlar</option>
+                {% for value, label in statuses %}
+                    <option value="{{ value }}" {% if selected_status == value %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+            </select>
+
+            <select class="form-control" name="type" style="width:auto;min-width:150px;" aria-label="Bino turi bo'yicha filter">
+                <option value="">Barcha bino turlari</option>
+                {% for value, label in project_types %}
+                    <option value="{{ value }}" {% if selected_type == value %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+            </select>
+
+            <button type="submit" class="btn btn--primary btn--sm" style="height:42px;">
+                <i data-lucide="filter"></i> Saralash
+            </button>
+            
+            {% if search or selected_status or selected_type %}
+            <a href="{% url 'projects:list' %}" class="btn btn--ghost btn--sm" style="height:42px;">
+                <i data-lucide="x"></i> Tozalash
+            </a>
+            {% endif %}
+        </div>
+    </form>
+</div>
+
+<!-- Projects Table Card -->
+<div class="card" style="padding:0;overflow:hidden;">
+    <div class="table-responsive project-list-table">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th style="width:60px;">#</th>
+                    <th>Loyiha nomi & Ob'ekt</th>
+                    <th>Bino turi</th>
+                    <th>Manzil</th>
+                    <th>Holati</th>
+                    <th>QR Pasport</th>
+                    <th>Sana</th>
+                    <th style="text-align:right;">Amallar</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for p in projects %}
+                <tr>
+                    <td style="font-family:var(--font-mono);color:var(--text-muted);font-size:0.85rem;">
+                        {{ forloop.counter0|add:page_obj.start_index }}
+                    </td>
+                    <td>
+                        <div style="display:flex;align-items:center;gap:12px;">
+                            <div style="width:38px;height:38px;border-radius:8px;background:linear-gradient(135deg, var(--navy-800), var(--blue-500));color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;">
+                                <i data-lucide="file-badge-2" style="width:18px;height:18px;"></i>
+                            </div>
+                            <div>
+                                <a href="{% url 'projects:detail' p.pk %}" style="font-weight:700;font-size:0.95rem;color:var(--text-primary);display:block;">
+                                    {{ p.name }}
+                                </a>
+                                <span style="font-size:0.78rem;color:var(--text-muted);display:flex;align-items:center;gap:4px;">
+                                    <i data-lucide="user" style="width:12px;height:12px;"></i>
+                                    {{ p.electrician.get_full_name|default:p.electrician.username }}
+                                </span>
+                                {% if p.client %}
+                                <span style="font-size:0.78rem;color:var(--text-muted);display:block;margin-top:3px;">
+                                    Mijoz: {{ p.client.get_full_name|default:p.client.username }}
+                                </span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <span class="table-tech-code">{{ p.get_project_type_display|default:p.project_type }}</span>
+                    </td>
+                    <td style="color:var(--text-secondary);font-size:0.88rem;">
+                        {{ p.address|default:"Manzil kiritilmagan"|truncatechars:35 }}
+                    </td>
+                    <td>
+                        <span class="badge badge--{{ p.status }}">
+                            <span class="badge-dot"></span>
+                            {{ p.get_status_display }}
+                        </span>
+                    </td>
+                    <td>
+                        {% if p.qr_codes.exists %}
+                            {% if user.can_use_electrician_tools %}
+                                <a href="{% url 'qrcodes:manage' p.pk %}" class="badge badge--success" title="QR boshqaruvi">
+                                    <i data-lucide="qr-code" style="width:12px;height:12px;"></i> QR Faol
+                                </a>
+                            {% elif p.is_public and p.qr_codes.first.is_active %}
+                                <a href="{% url 'qrcodes:public' p.qr_codes.first.token %}" class="badge badge--success" target="_blank">
+                                    <i data-lucide="external-link" style="width:12px;height:12px;"></i> Ochiq pasport
+                                </a>
+                            {% else %}
+                                <span class="badge badge--neutral">Yopiq</span>
+                            {% endif %}
+                        {% elif user.can_use_electrician_tools %}
+                            <a href="{% url 'qrcodes:manage' p.pk %}" class="btn btn--sm btn--ghost" style="color:var(--blue-500);padding:3px 8px;">
+                                <i data-lucide="plus"></i> QR yaratish
+                            </a>
+                        {% else %}
+                            <span style="color:var(--text-muted);">-</span>
+                        {% endif %}
+                    </td>
+                    <td style="font-family:var(--font-mono);font-size:0.85rem;color:var(--text-muted);">
+                        {{ p.created_at|date:"d.m.Y" }}
+                    </td>
+                    <td style="text-align:right;">
+                        <div style="display:inline-flex;align-items:center;gap:6px;">
+                            <a href="{% url 'projects:detail' p.pk %}" class="btn btn--sm btn--secondary" title="Texnik pasportni ochish">
+                                <i data-lucide="eye" style="width:14px;height:14px;"></i> Ko'rish
+                            </a>
+                            {% if user.can_use_electrician_tools %}
+                            <a href="{% url 'projects:edit' p.pk %}" class="btn btn--sm btn--ghost" title="Tahrirlash">
+                                <i data-lucide="pencil" style="width:14px;height:14px;"></i>
+                            </a>
+                            <a href="{% url 'projects:delete' p.pk %}" class="btn btn--sm btn--ghost" style="color:var(--status-danger);" title="O'chirish" data-confirm="Haqiqatan ham bu loyihani o'chirmoqchimisiz?">
+                                <i data-lucide="trash-2" style="width:14px;height:14px;"></i>
+                            </a>
+                            {% endif %}
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="8">
+                        <div class="empty-state">
+                            <div class="empty-state-icon">
+                                <i data-lucide="search-x"></i>
+                            </div>
+                            <div class="empty-state-title">
+                                {% if search or selected_status or selected_type %}
+                                    Qidiruv bo'yicha loyihalar topilmadi
+                                {% else %}
+                                    Hozircha elektr loyihalari mavjud emas
+                                {% endif %}
+                            </div>
+                            <div class="empty-state-text">
+                                {% if search or selected_status or selected_type %}
+                                    Qidiruv parametrlarini o'zgartirib qayta urinib ko'ring yoki filtrlarni tozalang.
+                                {% else %}
+                                    Bino yoki xonadon uchun yangi elektr raqamli pasportini shakllantiring.
+                                {% endif %}
+                            </div>
+                            {% if search or selected_status or selected_type %}
+                                <a href="{% url 'projects:list' %}" class="btn btn--secondary btn--sm">Filtrni tozalash</a>
+                            {% elif user.can_use_electrician_tools %}
+                                <a href="{% url 'projects:create' %}" class="btn btn--primary btn--sm">
+                                    <i data-lucide="plus"></i> Yangi loyiha yaratish
+                                </a>
+                            {% endif %}
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="project-list-cards">
+        {% for p in projects %}
+        <article class="card project-list-card">
+            <div class="flex-between">
+                <a class="project-list-card__title" href="{% url 'projects:detail' p.pk %}">{{ p.name }}</a>
+                <span class="badge badge--{{ p.status }}">{{ p.get_status_display }}</span>
+            </div>
+            <p class="muted">{{ p.get_project_type_display }} · {{ p.address|default:"Manzil kiritilmagan" }}</p>
+            <p class="text-small muted">Yaratilgan: {{ p.created_at|date:"d.m.Y" }}</p>
+            <div class="actions">
+                <a href="{% url 'projects:detail' p.pk %}" class="btn btn--sm btn--primary">Ko'rish</a>
+                {% if user.can_use_electrician_tools %}
+                    <a href="{% url 'qrcodes:manage' p.pk %}" class="btn btn--sm btn--ghost">QR</a>
+                    <a href="{% url 'projects:edit' p.pk %}" class="btn btn--sm btn--ghost">Tahrirlash</a>
+                    <a href="{% url 'projects:delete' p.pk %}" class="btn btn--sm btn--ghost" data-confirm="Haqiqatan ham bu loyihani o'chirmoqchimisiz?">O'chirish</a>
+                {% endif %}
+            </div>
+        </article>
+        {% empty %}
+        <div class="card project-list-empty">
+            {% if search or selected_status or selected_type %}
+                Qidiruv bo'yicha loyihalar topilmadi.
+            {% else %}
+                Hozircha elektr loyihalari mavjud emas.
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Pagination -->
+    {% if page_obj.paginator.num_pages > 1 %}
+    <div style="padding:16px 24px;border-top:1px solid var(--border-color);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
+        <div style="font-size:0.85rem;color:var(--text-muted);">
+            Jami {{ page_obj.paginator.count }} ob'ektdan {{ page_obj.start_index }}-{{ page_obj.end_index }} ko'rsatilmoqda
+        </div>
+        <div style="display:flex;gap:6px;align-items:center;">
+            {% if page_obj.has_previous %}
+            <a href="?{% if search %}q={{ search|urlencode }}&amp;{% endif %}{% if selected_status %}status={{ selected_status|urlencode }}&amp;{% endif %}{% if selected_type %}type={{ selected_type|urlencode }}&amp;{% endif %}page={{ page_obj.previous_page_number }}" class="btn btn--sm btn--secondary">
+                <i data-lucide="chevron-left" style="width:14px;height:14px;"></i> Oldingi
+            </a>
+            {% endif %}
+            
+            {% for page in page_urls %}
+                {% if page.number == page_obj.number %}
+                    <span class="btn btn--sm btn--primary" style="min-width:34px;padding:6px 10px;">{{ page.number }}</span>
+                {% else %}
+                    <a href="{{ page.url }}" class="btn btn--sm btn--secondary" style="min-width:34px;padding:6px 10px;">{{ page.number }}</a>
+                {% endif %}
+            {% endfor %}
+
+            {% if page_obj.has_next %}
+            <a href="?{% if search %}q={{ search|urlencode }}&amp;{% endif %}{% if selected_status %}status={{ selected_status|urlencode }}&amp;{% endif %}{% if selected_type %}type={{ selected_type|urlencode }}&amp;{% endif %}page={{ page_obj.next_page_number }}" class="btn btn--sm btn--secondary">
+                Keyingi <i data-lucide="chevron-right" style="width:14px;height:14px;"></i>
+            </a>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}Elektrik profili — VoltPass{% endblock %}
+{% block page_title %}Profil va kontaktlar{% endblock %}
+{% block content %}
+<div class="simple-form-page">
+<h1>Profil va kontaktlar</h1>
+<p class="muted">QR pasportda ko'rinadigan ma'lumot va aloqa usullarini shu yerdan boshqaring.</p>
+<form method="post" enctype="multipart/form-data" class="card simple-form">
+{% csrf_token %}{{ form.non_field_errors }}{{ contact_form.non_field_errors }}
+{% for field in contact_form %}<div class="form-group"><label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>{{ field }}{{ field.errors }}</div>{% endfor %}
+<div class="form-group"><label class="form-label" for="{{ form.company_name.id_for_label }}">Kompaniya nomi (ixtiyoriy)</label>{{ form.company_name }}{{ form.company_name.errors }}</div>
+<div class="form-group"><label class="form-label" for="{{ form.avatar.id_for_label }}">Profil rasmi yoki kompaniya logosi (ixtiyoriy)</label>{{ form.avatar }}{{ form.avatar.errors }}<p class="form-text">JPG, PNG, WebP · 20 MB gacha.</p></div>
+<div class="form-group"><label class="form-label" for="{{ form.telegram.id_for_label }}">Telegram</label>{{ form.telegram }}{{ form.telegram.errors }}<p class="form-text">@usta_ali yoki https://t.me/usta_ali</p></div>
+<div class="form-group"><label class="form-label" for="{{ form.instagram.id_for_label }}">Instagram</label>{{ form.instagram }}{{ form.instagram.errors }}<p class="form-text">@usta.ali yoki https://instagram.com/usta.ali</p></div>
+<fieldset class="form-group contact-permissions"><legend class="form-label">QR pasport va ochiq profilda ko'rsatish</legend>
+<label class="toggle-row">{{ form.show_phone_public }}<span>Telefon raqamim</span></label>
+<label class="toggle-row">{{ form.show_telegram_public }}<span>Telegram profilim</span></label>
+<label class="toggle-row">{{ form.show_instagram_public }}<span>Instagram profilim</span></label>
+</fieldset>
+<details class="workspace-section"{% if form.bio.errors or form.experience_years.errors or form.specialization.errors or form.city.errors %} open{% endif %}><summary>Kasbiy ma'lumotlar (ixtiyoriy)</summary><div class="workspace-section__body">
+{% for field in form %}{% if field.name == 'bio' or field.name == 'experience_years' or field.name == 'specialization' or field.name == 'city' %}<div class="form-group"><label class="form-label" for="{{ field.id_for_label }}">{% if field.name == 'bio' %}O'zim haqimda{% elif field.name == 'experience_years' %}Tajriba (yil){% elif field.name == 'specialization' %}Mutaxassislik{% else %}Shahar{% endif %}</label>{{ field }}{{ field.errors }}</div>{% endif %}{% endfor %}
+</div></details>
+<div class="action-row"><button type="submit" class="btn btn--primary">Saqlash</button><a href="{% url 'electricians:my_profile' %}" class="btn btn--secondary">Bekor qilish</a></div>
+</form></div>
+{% endblock %}
+

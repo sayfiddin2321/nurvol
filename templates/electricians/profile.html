@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}Elektrik profili — VoltPass{% endblock %}
+{% block page_title %}Mening profilim{% endblock %}
+{% block content %}
+<div class="simple-form-page">
+<div class="section-heading"><div><h1>{{ profile.user.get_full_name|default:profile.user.username }}</h1>{% if profile.company_name %}<p class="muted">{{ profile.company_name }}</p>{% endif %}</div><a class="btn btn--primary" href="{% url 'electricians:edit_profile' %}">Profil va kontaktlarni tahrirlash</a></div>
+<div class="card">
+<div class="contact-person">{% if profile.avatar %}<img class="contact-avatar" src="{{ profile.avatar.url }}" alt="" width="56" height="56">{% else %}<span class="contact-avatar contact-initial">{{ profile.user.first_name|default:profile.user.username|slice:':1'|upper }}</span>{% endif %}<div><strong>{{ profile.specialization|default:"Elektrik" }}</strong><p class="muted">{{ profile.city|default:"Hudud kiritilmagan" }} · {{ profile.experience_years }} yil tajriba</p>{% if profile.is_verified %}<span class="badge badge--success">Tasdiqlangan</span>{% endif %}</div></div>
+<dl class="passport-facts">
+<div><dt>Telefon</dt><dd>{{ profile.user.phone|default:"Kiritilmagan" }}</dd><small class="muted">QR: {% if profile.public_phone_url %}ochiq{% else %}yopiq{% endif %}</small></div>
+<div><dt>Telegram</dt><dd>{% if profile.telegram_url %}<a href="{{ profile.telegram_url }}" target="_blank" rel="noopener noreferrer">{{ profile.telegram }}</a>{% else %}Kiritilmagan{% endif %}</dd><small class="muted">QR: {% if profile.public_telegram_url %}ochiq{% else %}yopiq{% endif %}</small></div>
+<div><dt>Instagram</dt><dd>{% if profile.instagram_url %}<a href="{{ profile.instagram_url }}" target="_blank" rel="noopener noreferrer">{{ profile.instagram }}</a>{% else %}Kiritilmagan{% endif %}</dd><small class="muted">QR: {% if profile.public_instagram_url %}ochiq{% else %}yopiq{% endif %}</small></div>
+</dl>{% if profile.bio %}{{ profile.bio|linebreaks }}{% endif %}
+{% if profile.user.is_electrician and profile.access_status == 'active' %}<a class="btn btn--secondary" href="{% url 'electricians:public_profile' profile.user_id %}">Ochiq profilni ko'rish</a>{% endif %}
+</div></div>
+{% endblock %}
+

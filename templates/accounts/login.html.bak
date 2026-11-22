@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}Kirish — ElectroPass{% endblock %}
+{% block content %}
+<div class="card narrow">
+    <h2>Xush kelibsiz</h2>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <p class="login-forgot"><a href="{% url 'accounts:password_reset' %}">Parolni unutdingizmi?</a></p>
+        <button type="submit" class="btn btn--primary btn--lg btn--block">Kirish</button>
+    </form>
+    <p>Akkauntingiz yo'qmi? <a href="{% url 'accounts:register' %}">Ro'yxatdan o'tish</a></p>
+</div>
+{% endblock %}

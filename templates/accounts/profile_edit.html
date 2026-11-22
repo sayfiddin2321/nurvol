@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block title %}Profil sozlamalari — VoltPass{% endblock %}
+{% block page_title %}Profilni tahrirlash{% endblock %}
+
+{% block content %}
+<div style="max-width:680px;margin:20px auto;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+        <div>
+            <h1 style="font-size:1.6rem;font-weight:800;letter-spacing:-0.02em;margin:0;color:var(--text-primary);">
+                Profil ma'lumotlari
+            </h1>
+            <p style="font-size:0.88rem;color:var(--text-muted);margin-top:2px;">
+                Ism, familiya, email va aloqa parametrlarini yangilang
+            </p>
+        </div>
+        <a href="{% url 'accounts:settings' %}" class="btn btn--secondary btn--sm">
+            <i data-lucide="arrow-left"></i> Sozlamalarga qaytish
+        </a>
+    </div>
+
+    <div class="card" style="padding:32px;">
+        {% if form.errors %}
+        <div class="msg-banner msg-banner--danger" style="margin-bottom:18px;">
+            <i data-lucide="alert-circle"></i>
+            <span>Iltimos, maydonlardagi xatoliklarni to'g'rilang.</span>
+        </div>
+        {% endif %}
+
+        <form method="post">
+            {% csrf_token %}
+            {% for field in form %}
+            <div class="form-group">
+                <label for="{{ field.id_for_label }}" class="form-label required">{{ field.label }}</label>
+                {{ field }}
+                {% if field.help_text %}
+                <div class="form-text">{{ field.help_text|safe }}</div>
+                {% endif %}
+                {% for error in field.errors %}
+                <div class="form-text" style="color:var(--danger);">{{ error }}</div>
+                {% endfor %}
+            </div>
+            {% endfor %}
+
+            <div style="display:flex;justify-content:flex-end;gap:12px;border-top:1px solid var(--glass-border-subtle);padding-top:18px;margin-top:20px;">
+                <a href="{% url 'accounts:settings' %}" class="btn btn--secondary">Bekor qilish</a>
+                <button type="submit" class="btn btn--primary">
+                    <i data-lucide="check"></i> O'zgarishlarni saqlash
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

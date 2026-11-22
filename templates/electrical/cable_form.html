@@ -1,0 +1,153 @@
+{% extends "base.html" %}
+{% block title %}Kabel qo'shish — {{ project.name }} | VoltPass{% endblock %}
+{% block page_title %}Kabel kiritish{% endblock %}
+
+{% block content %}
+<div style="max-width:760px;margin:0 auto;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+        <div>
+            <h1 style="font-size:1.6rem;font-weight:800;letter-spacing:-0.03em;margin:0;">
+                Kabel magistrali
+            </h1>
+            <p style="color:var(--text-muted);font-size:0.9rem;margin-top:2px;">
+                Ob'ekt: <strong style="color:var(--text-primary);">{{ project.name }}</strong> · Kabel jurnali
+            </p>
+        </div>
+        <a href="{% url 'projects:detail' project.pk %}#tab-cables" class="btn btn--secondary btn--sm">
+            <i data-lucide="arrow-left"></i> Bekor qilish
+        </a>
+    </div>
+
+    <div class="card">
+        <form method="post">
+            {% csrf_token %}
+            {% if form.non_field_errors %}
+            <div class="msg-banner msg-banner--danger" style="margin-bottom:18px;">
+                <i data-lucide="alert-circle"></i>
+                <span>{{ form.non_field_errors }}</span>
+            </div>
+            {% endif %}
+
+            <section class="wiring-preview" aria-live="polite">
+                <p class="eyebrow">KABEL YO'NALISHI</p>
+                <div class="wiring-chain">
+                    <span><i data-lucide="git-branch"></i><strong data-wiring-value="source-circuit">Liniya tanlanmagan</strong></span>
+                    <b aria-hidden="true">&rarr;</b>
+                    <span><i data-lucide="cable"></i><strong data-wiring-value="cable">Kabel markasi va kesimi</strong></span>
+                    <b aria-hidden="true">&rarr;</b>
+                    <span><i data-lucide="door-open"></i><strong data-wiring-value="room">Xona tanlanmagan</strong></span>
+                </div>
+            </section>
+
+            <!-- PUE Smart Load Advisory Guide -->
+            <div style="background:rgba(37,99,235,0.06);border:1px solid rgba(37,99,235,0.2);border-radius:14px;padding:14px 18px;margin-bottom:20px;">
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+                    <span style="font-size:0.82rem;font-weight:700;color:var(--blue-500);text-transform:uppercase;letter-spacing:0.04em;display:flex;align-items:center;gap:6px;">
+                        <i data-lucide="shield-alert" style="width:14px;height:14px;"></i>
+                        ПУЭ / ShNQ Xavfsizlik Me'yori
+                    </span>
+                    <span style="font-size:0.75rem;color:var(--text-muted);">Mis kabellar uchun</span>
+                </div>
+                <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(130px, 1fr));gap:8px;font-size:0.78rem;">
+                    <div style="background:var(--glass-surface-subtle);padding:6px 10px;border-radius:8px;border:1px solid var(--border-color);">
+                        <strong>1.5 mm²</strong> &rarr; 10A (≤ 2.2 kW)<br><span style="color:var(--text-muted);font-size:0.72rem;">Yoritish</span>
+                    </div>
+                    <div style="background:var(--glass-surface-subtle);padding:6px 10px;border-radius:8px;border:1px solid var(--border-color);">
+                        <strong>2.5 mm²</strong> &rarr; 16A (≤ 3.5 kW)<br><span style="color:var(--text-muted);font-size:0.72rem;">Rozetkalar</span>
+                    </div>
+                    <div style="background:var(--glass-surface-subtle);padding:6px 10px;border-radius:8px;border:1px solid var(--border-color);">
+                        <strong>4.0 mm²</strong> &rarr; 25A (≤ 5.5 kW)<br><span style="color:var(--text-muted);font-size:0.72rem;">Plita / Konditsioner</span>
+                    </div>
+                    <div style="background:var(--glass-surface-subtle);padding:6px 10px;border-radius:8px;border:1px solid var(--border-color);">
+                        <strong>6.0 mm²</strong> &rarr; 32A (≤ 7.0 kW)<br><span style="color:var(--text-muted);font-size:0.72rem;">Oraliq / Quvvat</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="{{ form.name.id_for_label }}" class="form-label required">Kabel nomi / belgisi</label>
+                    {{ form.name }}
+                    <div class="form-text">{{ form.name.help_text }}</div>
+                    {% for error in form.name.errors %}<div class="form-text" style="color:var(--status-danger);">{{ error }}</div>{% endfor %}
+                </div>
+                <div class="form-group">
+                    <label for="{{ form.cable_type.id_for_label }}" class="form-label required">Kabel markasi</label>
+                    {{ form.cable_type }}
+                    <div class="form-text">{{ form.cable_type.help_text }}</div>
+                    {% for error in form.cable_type.errors %}<div class="form-text" style="color:var(--status-danger);">{{ error }}</div>{% endfor %}
+                </div>
+            </div>
+
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="{{ form.cross_section.id_for_label }}" class="form-label required">Kesimi (mm²)</label>
+                    {{ form.cross_section }}
+                    <div class="form-text">{{ form.cross_section.help_text }}</div>
+                    {% for error in form.cross_section.errors %}<div class="form-text" style="color:var(--status-danger);">{{ error }}</div>{% endfor %}
+                </div>
+                <div class="form-group">
+                    <label for="{{ form.core_count.id_for_label }}" class="form-label">Tomirlar soni</label>
+                    {{ form.core_count }}
+                    <div class="form-text">{{ form.core_count.help_text }}</div>
+                    {% for error in form.core_count.errors %}<div class="form-text" style="color:var(--status-danger);">{{ error }}</div>{% endfor %}
+                </div>
+            </div>
+
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="{{ form.length_meters.id_for_label }}" class="form-label">Uzunligi (metr)</label>
+                    {{ form.length_meters }}
+                    <div class="form-text">{{ form.length_meters.help_text }}</div>
+                    {% for error in form.length_meters.errors %}<div class="form-text" style="color:var(--status-danger);">{{ error }}</div>{% endfor %}
+                </div>
+                <div class="form-group">
+                    <label for="{{ form.manufacturer.id_for_label }}" class="form-label">Ishlab chiqaruvchi (zavod)</label>
+                    {{ form.manufacturer }}
+                    {% for error in form.manufacturer.errors %}<div class="form-text" style="color:var(--status-danger);">{{ error }}</div>{% endfor %}
+                </div>
+            </div>
+
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="{{ form.circuit.id_for_label }}" class="form-label">Bog'langan elektr zanjiri (liniya)</label>
+                    {{ form.circuit }}
+                    {% for error in form.circuit.errors %}<div class="form-text" style="color:var(--status-danger);">{{ error }}</div>{% endfor %}
+                </div>
+                <div class="form-group">
+                    <label for="{{ form.room.id_for_label }}" class="form-label">Xona / Joylashuv</label>
+                    {{ form.room }}
+                    {% for error in form.room.errors %}<div class="form-text" style="color:var(--status-danger);">{{ error }}</div>{% endfor %}
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="{{ form.installation_location.id_for_label }}" class="form-label">Yotqizish usuli / trassa</label>
+                {{ form.installation_location }}
+                <div class="form-text">{{ form.installation_location.help_text }}</div>
+                {% for error in form.installation_location.errors %}<div class="form-text" style="color:var(--status-danger);">{{ error }}</div>{% endfor %}
+            </div>
+
+            <div class="form-group">
+                <label for="{{ form.notes.id_for_label }}" class="form-label">Qo'shimcha eslatma</label>
+                {{ form.notes }}
+                {% for error in form.notes.errors %}<div class="form-text" style="color:var(--status-danger);">{{ error }}</div>{% endfor %}
+            </div>
+
+            <div style="background:var(--bg-card-subtle);padding:14px;border-radius:var(--radius-md);border:1px solid var(--border-color);margin-bottom:20px;display:flex;align-items:center;gap:10px;">
+                {{ form.is_public }}
+                <label for="{{ form.is_public.id_for_label }}" style="font-weight:600;font-size:0.9rem;cursor:pointer;">
+                    Ommaviy QR pasportda ko'rsatish
+                </label>
+            </div>
+
+            <div style="display:flex;justify-content:flex-end;gap:12px;border-top:1px solid var(--border-color);padding-top:16px;">
+                <a href="{% url 'projects:detail' project.pk %}#tab-cables" class="btn btn--secondary">Bekor qilish</a>
+                <button type="submit" class="btn btn--primary">
+                    <i data-lucide="check"></i> Kabelni saqlash
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
