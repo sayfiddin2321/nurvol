@@ -1,2 +1,32 @@
+# Environment
 .env
+.env.*
+!.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Virtual environment
 venv/
+.venv/
+env/
+
+# Django
+db.sqlite3
+staticfiles/
+
+# User uploaded media
+media/
+
+# Test files
+.qa/
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+Thumbs.db
+.DS_Store

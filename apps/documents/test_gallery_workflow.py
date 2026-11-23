@@ -1,12 +1,17 @@
-from io import BytesIO
+from io import BytesIO, StringIO
+import errno
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from unittest.mock import patch
 
 from PIL import Image
 from django.core.files.uploadedfile import SimpleUploadedFile
+from django.core.files.storage import FileSystemStorage
+from django.core.management import call_command
+from django.core.management.base import CommandError
 from django.test import TestCase, override_settings
 from django.urls import reverse
+from django.utils.html import escape
 
 from apps.test_utils import consume_response
 
@@ -132,6 +137,64 @@ class GalleryWorkflowTests(TestCase):
         added_files = [p for p in set(Path(self.media_dir.name).rglob("*")) - paths_before if p.is_file()]
         self.assertEqual(added_files, [])
 
+    def test_missing_webp_support_uploads_and_serves_png_variants(self):
+        with patch("apps.documents.services.features.check", return_value=False):
+            response = self.client.post(self.upload_url, {"images": [photo()]})
+        self.assertEqual(response.status_code, 302)
+        image = self.project.images.get()
+        for field, route in [(image.thumbnail, "image_thumbnail"), (image.display_image, "image_display")]:
+            self.assertTrue(field.name.endswith(".png"))
+            response = self.client.get(reverse("documents:" + route, args=[image.pk]))
+            try:
+                self.assertEqual(response["Content-Type"], "image/png")
+                with Image.open(BytesIO(b"".join(response.streaming_content))) as variant:
+                    self.assertEqual(variant.format, "PNG")
+            finally:
+                consume_response(response)
+
+    def test_permission_and_disk_failures_show_actionable_errors(self):
+        for error, message in [
+            (PermissionError(errno.EACCES, "Permission denied"), "yozish ruxsati yo'q"),
+            (OSError(errno.EROFS, "Read-only filesystem"), "yozish ruxsati yo'q"),
+            (OSError(errno.ENOSPC, "No space left"), "disk kvotasi yetarli emas"),
+        ]:
+            with self.subTest(error=error):
+                with patch("apps.documents.views.save_project_image", side_effect=error):
+                    response = self.client.post(self.upload_url, {"images": [photo()]})
+                self.assertContains(response, escape(message))
+                self.assertFalse(self.project.images.exists())
+
+    def test_cleanup_failure_does_not_hide_original_storage_error(self):
+        original_save = FileSystemStorage.save
+
+        def fail_thumbnail(storage, name, content, **kwargs):
+            if name.replace("\\", "/").startswith("projects/thumbnails/"):
+                raise OSError(errno.ENOSPC, "No space left")
+            return original_save(storage, name, content, **kwargs)
+
+        with patch.object(FileSystemStorage, "save", autospec=True, side_effect=fail_thumbnail), patch.object(
+            FileSystemStorage, "delete", side_effect=PermissionError(errno.EACCES, "Cleanup denied")
+        ):
+            response = self.client.post(self.upload_url, {"images": [photo()]})
+        self.assertContains(response, "disk kvotasi yetarli emas")
+        self.assertFalse(self.project.images.exists())
+        self.assertFalse(self.project.revisions.exists())
+
+    def test_storage_diagnostic_checks_actual_project_and_cleans_test_files(self):
+        before = {path for path in Path(self.media_dir.name).rglob("*") if path.is_file()}
+        output = StringIO()
+        call_command("check_upload_storage", project_id=self.project.pk, stdout=output)
+        self.assertIn("Upload storage OK", output.getvalue())
+        self.assertIn(f"projects/{self.project.pk}/images/", output.getvalue())
+        self.assertEqual(before, {path for path in Path(self.media_dir.name).rglob("*") if path.is_file()})
+        self.assertFalse(self.project.images.exists())
+
+    def test_storage_diagnostic_exposes_permission_failure(self):
+        storage = ProjectImage._meta.get_field("image").storage
+        with patch.object(storage, "save", side_effect=PermissionError(errno.EACCES, "Permission denied")):
+            with self.assertRaisesMessage(CommandError, "Permission denied"):
+                call_command("check_upload_storage", project_id=self.project.pk, stdout=StringIO())
+
     def test_upload_automatically_shares_legacy_project_and_preserves_printed_qr(self):
         self.project.is_public = False
         self.project.save()
@@ -169,7 +232,9 @@ class GalleryWorkflowTests(TestCase):
         self.client.force_login(self.owner)
         self.client.post(reverse("documents:image_edit", args=[image.pk]), {"title": "Changed", "description": "New caption", "category": "panel", "is_public": "on"})
         image.refresh_from_db()
-        self.assertEqual(image.caption, "New caption")
+        self.assertEqual(image.title, "Changed")
+        self.assertEqual(image.description, "New caption")
+        self.assertEqual(image.caption, "Changed")
         files = [Path(field.path) for field in (image.image, image.thumbnail, image.display_image)]
         with self.captureOnCommitCallbacks(execute=True):
             self.client.post(reverse("documents:image_delete", args=[image.pk]))

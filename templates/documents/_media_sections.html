@@ -1,0 +1,23 @@
+<section class="passport-section" id="tab-images">
+    <div class="section-heading"><div><h2>Umumiy loyiha rasmlari</h2><p class="muted">Xonalar, kabel yo'nalishlari, elektr nuqtalari va loyiha jarayoni.</p></div>{% if can_edit %}<a class="btn btn--secondary btn--sm" href="{% url 'documents:image_upload' project.pk %}#general-uploads"><i data-lucide="plus" aria-hidden="true"></i>Yangi fayl</a>{% endif %}</div>
+    {% include 'documents/_gallery.html' with gallery_group='photos' page_parameter='photos' gallery_anchor='tab-images' %}
+    {% include 'documents/_videos.html' with videos=general_videos %}
+    {% if not gallery_page.object_list and not general_videos %}<div class="workspace-empty"><i data-lucide="images" aria-hidden="true"></i><h3>Hali rasmlar yo'q</h3><p>Loyiha uchun rasm yoki video qo'shing.</p></div>{% endif %}
+</section>
+{% if can_edit %}
+<dialog class="media-delete-dialog" data-media-delete-dialog aria-labelledby="delete-media-heading" aria-describedby="delete-media-description">
+    <form method="post">{% csrf_token %}
+        <span class="media-delete-icon"><i data-lucide="trash-2" aria-hidden="true"></i></span>
+        <h2 id="delete-media-heading">Faylni o'chirasizmi?</h2>
+        <p class="media-delete-name" data-delete-item-name></p>
+        <p id="delete-media-description" class="muted">Bu fayl loyihadan butunlay o'chiriladi. Ushbu amalni bekor qilib bo'lmaydi.</p>
+        <div class="action-row"><button type="button" class="btn btn--secondary" data-delete-cancel autofocus>Bekor qilish</button><button type="submit" class="btn media-delete-submit">Ha, o'chirish</button></div>
+    </form>
+</dialog>
+{% endif %}
+<section class="passport-section panel-gallery-section" id="tab-panels">
+    <div class="section-heading"><div class="panel-gallery-heading"><span class="media-section-icon"><i data-lucide="circuit-board" aria-hidden="true"></i></span><div><h2>Elektr shitlari</h2><p class="muted">Har bir shitning rasmlari, videolari va izohlari.</p></div></div>{% if can_edit %}<a class="btn btn--secondary btn--sm" href="{% url 'documents:image_upload' project.pk %}#panel-uploads"><i data-lucide="plus" aria-hidden="true"></i>Shit rasmini qo'shish</a>{% endif %}</div>
+    {% include 'documents/_gallery.html' with gallery_page=panel_gallery_page gallery_group='panels' page_parameter='panels' gallery_anchor='tab-panels' %}
+    {% include 'documents/_videos.html' with videos=panel_videos %}
+    {% if not panel_gallery_page.object_list and not panel_videos %}<div class="workspace-empty"><i data-lucide="circuit-board" aria-hidden="true"></i><h3>Elektr shitlari hali qo'shilmagan</h3><p>Masalan: «1-shit», «2-shit» yoki «Qavat shitlari».</p></div>{% endif %}
+</section>

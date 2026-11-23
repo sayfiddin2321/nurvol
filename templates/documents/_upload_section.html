@@ -1,0 +1,17 @@
+<section class="media-upload-section media-upload-section--{{ section }}" data-media-section="{{ section }}"{% if section == 'general' and video_mode %} data-video-only="true"{% endif %} id="{{ section }}-uploads" aria-labelledby="{{ section }}-heading">
+    <header class="media-section-heading"><span class="media-section-icon"><i data-lucide="{{ icon }}" aria-hidden="true"></i></span><div><h2 id="{{ section }}-heading">{{ heading }}</h2><p>{% if section == 'panel' %}Har bir shitga alohida nom yoki raqam bering.{% else %}Xonalar, kabel yo'nalishlari va elektr nuqtalari.{% endif %}</p></div><span class="media-count" data-section-count>0</span></header>
+    {% if section == 'general' %}
+    <fieldset class="media-category-picker"><legend>Qaysi turdagi faylni yuklaysiz?</legend><div class="media-category-options">{% for option in category_field %}<label class="media-category-option">{{ option.tag }}<span>{{ option.choice_label }}</span></label>{% endfor %}</div></fieldset>
+    {% endif %}
+    <div class="media-dropzone" data-drop-zone>
+        <span class="media-dropzone-icon"><i data-lucide="cloud-upload" aria-hidden="true"></i></span>
+        {% if section == 'general' and video_mode %}<h3>Video yuklash</h3><p>Videolarni shu yerga tashlang yoki qurilmadan tanlang</p>{% else %}<h3>Rasmlarni yuklash</h3><p>Rasmlarni shu yerga tashlang yoki qurilmadan tanlang</p>{% endif %}
+        <button type="button" class="btn btn--secondary" data-pick hidden>{% if section == 'general' and video_mode %}Video tanlash{% else %}Rasm tanlash{% endif %}</button>
+        <label class="media-native-picker" for="{{ field.id_for_label }}"><span class="sr-only">{{ heading }} uchun rasm yoki video tanlash</span>{{ field }}</label>
+        <span class="media-formats">JPG, PNG, WebP · MP4, WebM video</span>
+    </div>
+    <div class="media-section-tools"><span class="muted">Rasm yoki video · 20 MB gacha</span><button type="button" class="btn btn--ghost btn--sm" data-camera-trigger hidden><i data-lucide="camera" aria-hidden="true"></i>Kameradan olish</button><input type="file" accept="image/*" capture="environment" data-camera-input hidden aria-label="{{ heading }} uchun kameradan rasm olish"></div>
+    <p class="media-selection-error field-error" data-selection-error role="alert" hidden></p>
+    <div class="media-preview-grid" data-upload-previews></div>
+    <p class="media-queue-empty" data-queue-empty>Fayl tanlangach, har biri uchun <strong>nom</strong> va <strong>ixtiyoriy izoh</strong> maydoni ochiladi.</p>
+</section>

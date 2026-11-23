@@ -165,7 +165,7 @@ class ProjectDocumentSecurityTests(TestCase):
         self.client.force_login(self.owner)
         upload_url = reverse("documents:image_upload", args=[self.project.pk])
         response = self.client.get(upload_url)
-        self.assertEqual(list(response.context["form"].fields), ["images", "description"])
+        self.assertEqual(list(response.context["form"].fields), ["general_files", "panel_files", "description", "general_category"])
         self.assertNotContains(response, 'name="is_public"')
         self.assertNotContains(response, 'name="category"')
         image_buffer = BytesIO()

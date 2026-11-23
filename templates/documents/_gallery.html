@@ -1,26 +1,27 @@
+{% load gallery_urls %}
 {% if gallery_page.object_list %}
 <div class="passport-gallery" aria-label="Rasmlar galereyasi">
 {% for img in gallery_page %}
 <figure class="passport-gallery__item">
-<a class="passport-gallery__link" href="{% url 'documents:image_display' img.pk %}" data-gallery-item data-gallery-group="photos" data-original="{% url 'documents:image_view' img.pk %}" data-caption="{{ img.caption }}{% if img.title and img.description %} — {{ img.description }}{% endif %}">
+<a class="passport-gallery__link" href="{% url 'documents:image_display' img.pk %}" data-gallery-item data-gallery-group="{{ gallery_group|default:'photos' }}" data-original="{% url 'documents:image_view' img.pk %}" data-caption="{{ img.get_category_display }}{% if img.title %} · {{ img.title }}{% endif %}{% if img.description %} — {{ img.description }}{% endif %}">
 <img src="{% url 'documents:image_thumbnail' img.pk %}" alt="{{ img.caption }}" width="720" height="540" loading="lazy" decoding="async">
 <span class="passport-gallery__expand" aria-hidden="true"><i data-lucide="expand"></i></span>
 </a>
-{% if img.title or img.description or can_edit %}<figcaption>{% if img.title %}<strong>{{ img.title }}</strong>{% endif %}{% if img.description %}<p>{{ img.description }}</p>{% endif %}
+<figcaption><span class="media-category-label">{{ img.get_category_display }}</span>{% if img.title %}<strong class="media-saved-title">{{ img.title }}</strong>{% endif %}{% if img.description %}<p>{{ img.description }}</p>{% endif %}
 {% if can_edit %}
 <div class="gallery-item-actions">
-<a class="btn btn--ghost btn--sm" href="{% url 'documents:image_edit' img.pk %}">Izohni tahrirlash</a>
-<form method="post" action="{% url 'documents:image_delete' img.pk %}">{% csrf_token %}<button type="submit" class="btn btn--ghost btn--sm field-error" data-confirm="Rasmni butunlay o'chirasizmi?">O'chirish</button></form>
+<a class="btn btn--ghost btn--sm" href="{% url 'documents:image_edit' img.pk %}">Tahrirlash</a>
+<a class="btn btn--ghost btn--sm field-error" href="{% url 'documents:image_delete_confirm' img.pk %}" data-media-delete data-delete-action="{% url 'documents:image_delete' img.pk %}" data-delete-name="{{ img.caption }}">O'chirish</a>
 </div>{% endif %}
-</figcaption>{% endif %}
+</figcaption>
 </figure>
 {% endfor %}
 </div>
 {% if gallery_page.has_other_pages %}
 <nav class="gallery-pagination" aria-label="Galereya sahifalari">
-{% if gallery_page.has_previous %}<a class="btn btn--secondary btn--sm" href="?photos={{ gallery_page.previous_page_number }}{% if can_edit %}#tab-images{% else %}#gallery{% endif %}">Oldingi</a>{% endif %}
+{% if gallery_page.has_previous %}<a class="btn btn--secondary btn--sm" href="{% gallery_page_url page_parameter|default:'photos' gallery_page.previous_page_number gallery_anchor|default:'tab-images' %}">Oldingi</a>{% endif %}
 <span>{{ gallery_page.number }} / {{ gallery_page.paginator.num_pages }} · {{ gallery_page.paginator.count }} ta rasm</span>
-{% if gallery_page.has_next %}<a class="btn btn--secondary btn--sm" href="?photos={{ gallery_page.next_page_number }}{% if can_edit %}#tab-images{% else %}#gallery{% endif %}">Keyingi</a>{% endif %}
+{% if gallery_page.has_next %}<a class="btn btn--secondary btn--sm" href="{% gallery_page_url page_parameter|default:'photos' gallery_page.next_page_number gallery_anchor|default:'tab-images' %}">Keyingi</a>{% endif %}
 </nav>
 {% endif %}
 {% endif %}

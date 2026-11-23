@@ -1,35 +1,43 @@
 {% extends "base.html" %}
 {% load static %}
-{% block title %}Fayl qo'shish — {{ project.name }} | VoltPass{% endblock %}
-{% block page_title %}{{ project.name }} / Fayl qo'shish{% endblock %}
-{% block extra_js %}<script src="{% static 'js/upload.js' %}?v=4" defer></script>{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'css/media.css' %}?v=4">{% endblock %}
+{% block title %}Fayl yuklash — {{ project.name }} | VoltPass{% endblock %}
+{% block page_title %}{{ project.name }} / Fayl yuklash{% endblock %}
+{% block extra_js %}<script src="{% static 'js/upload.js' %}?v=8" defer></script>{% endblock %}
 {% block content %}
-<div class="simple-form-page">
-<h1>{% if type == 'image' %}Rasmlar qo'shish{% else %}Sxema, hujjat yoki video{% endif %}</h1>
-<p class="muted">{{ project.name }} · Barcha fayllar shu obyekt ichida saqlanadi.</p>
-<form class="card simple-form" method="post" enctype="multipart/form-data" data-upload-form>
-{% csrf_token %}
-{% if form.errors %}<div class="upload-errors" role="alert"><strong>Fayllar yuklanmadi.</strong>{{ form.non_field_errors }}{% for field in form %}{% for error in field.errors %}<p>{{ field.label }}: {{ error }}</p>{% endfor %}{% endfor %}<p>Rasmlarni qayta tanlab, urinib ko'ring.</p></div>{% endif %}
 {% if type == 'image' %}
-<div class="upload-drop-zone" data-drop-zone>
-<label class="form-label" for="{{ form.images.id_for_label }}"><i data-lucide="images"></i> Galereyadan rasmlar tanlang</label>
-<p class="muted">Bir nechta rasm tanlang yoki fayllarni shu yerga tashlang.</p>
-{{ form.images }}
-<p class="form-text">JPG, PNG, WebP · har biri 20 MB gacha · bir martada 20 ta, jami 100 MB gacha.</p>
+<div class="media-upload-page">
+    <a class="media-back" href="{% url 'projects:detail' project.pk %}#tab-images">{{ project.name }} / Galereya</a>
+    <header class="workspace-heading media-heading">
+        <div><p class="eyebrow">LOYIHA GALEREYASI</p><h1>Rasm va video yuklash</h1><p class="muted">Loyiha jarayonini va elektr shitlarini bir joyda tartibli saqlang.</p></div>
+        <span class="media-project-label"><i data-lucide="folder-open" aria-hidden="true"></i>{{ project.name }}</span>
+    </header>
+    <form method="post" enctype="multipart/form-data" data-upload-form data-media-form data-media-endpoint="{% url 'documents:media_upload' project.pk %}">
+        {% csrf_token %}<input type="hidden" name="upload_version" value="2">
+        {% if form.errors %}<div class="upload-errors" role="alert"><strong>Fayllar yuklanmadi.</strong>{{ form.non_field_errors }}{% for field in form %}{% for error in field.errors %}<p>{{ field.label }}: {{ error }}</p>{% endfor %}{% endfor %}<p>Sabab bartaraf etilgach, fayllarni qayta tanlang.</p></div>{% endif %}
+        <div class="media-upload-sections">
+            {% include 'documents/_upload_section.html' with section='general' heading='Umumiy loyiha rasmlari' icon='images' field=media_form.general_files category_field=media_form.general_category %}
+            {% include 'documents/_upload_section.html' with section='panel' heading='Elektr shitlari' icon='circuit-board' field=media_form.panel_files %}
+        </div>
+        <noscript><div class="card simple-form"><p>Fayllarni tanlab yuklang. Har birining nomi va ixtiyoriy izohini galereyada tahrirlashingiz mumkin.</p><label class="form-label" for="fallback-description">Izoh (ixtiyoriy)</label><textarea name="description" id="fallback-description" maxlength="255" rows="3"></textarea></div></noscript>
+        <div class="media-upload-summary" data-upload-summary hidden role="status" aria-live="polite"></div>
+        <div class="media-total-progress" data-total-progress hidden><div class="media-progress-label"><span data-total-label>Yuklanmoqda…</span><span data-total-percent>0%</span></div><progress max="100" value="0" aria-label="Umumiy yuklash jarayoni"></progress></div>
+        <footer class="media-upload-footer">
+            <div><strong data-queue-count>Fayllar tanlanmagan</strong><p class="muted">Har biri 20 MB gacha · 20 ta fayl · jami 100 MB gacha</p></div>
+            <div class="action-row"><a class="btn btn--secondary" href="{% url 'projects:detail' project.pk %}#tab-images" data-gallery-link>Galereyaga qaytish</a><button type="submit" class="btn btn--primary"><i data-lucide="cloud-upload" aria-hidden="true"></i><span data-submit-label>Fayllarni yuklash</span></button></div>
+        </footer>
+        <p class="media-upload-note"><i data-lucide="info" aria-hidden="true"></i>Har bir faylga alohida nom va ixtiyoriy izoh kiriting. Yuklangan fayllar loyihaning mavjud QR havolasida ko'rinadi.</p>
+    </form>
 </div>
-<button type="button" class="btn btn--secondary camera-picker" data-camera-trigger hidden><i data-lucide="camera"></i> Kameradan rasm olish</button>
-<input type="file" accept="image/*" capture="environment" data-camera-input hidden aria-label="Kameradan rasm olish">
-<p class="form-text" data-upload-status role="status" aria-live="polite">Rasmlarni tekshiring. Keraksizlarini yuklashdan oldin olib tashlang.</p>
-<div class="upload-previews" data-upload-previews></div>
-<div class="form-group"><label class="form-label" for="{{ form.description.id_for_label }}">Izoh (ixtiyoriy)</label>{{ form.description }}</div>
-<p class="form-text">Yuklangan rasmlar QR havolasi orqali avtomatik ko'rinadi.</p>
 {% else %}
-<div class="form-group"><label class="form-label required" for="{{ form.title.id_for_label }}">Fayl nomi</label>{{ form.title }}</div>
-<div class="form-group"><label class="form-label required" for="{{ form.file.id_for_label }}">Fayl tanlang</label>{{ form.file }}<p class="form-text">PDF, DOC, DOCX, MP4 yoki WebM · 20 MB gacha.</p></div>
+<div class="simple-form-page"><h1>Sxema, hujjat yoki video</h1><p class="muted">{{ project.name }} · Fayllar shu obyekt ichida saqlanadi.</p>
+<form class="card simple-form" method="post" enctype="multipart/form-data" data-upload-form>{% csrf_token %}
+{% if form.errors %}<div class="upload-errors" role="alert"><strong>Fayl yuklanmadi.</strong>{{ form.non_field_errors }}{% for field in form %}{{ field.errors }}{% endfor %}</div>{% endif %}
+<div class="form-group"><label class="form-label" for="{{ form.title.id_for_label }}">Fayl nomi</label>{{ form.title }}</div>
+<div class="form-group"><label class="form-label" for="{{ form.file.id_for_label }}">Fayl tanlang</label>{{ form.file }}<p class="form-text">PDF, DOC, DOCX, MP4 yoki WebM · 20 MB gacha.</p></div>
 <div class="form-group"><label class="form-label" for="{{ form.description.id_for_label }}">Izoh (ixtiyoriy)</label>{{ form.description }}</div>
-{% endif %}
-{% if type != 'image' %}<label class="toggle-row form-group">{{ form.is_public }}<span>QR pasportda mijozga ko'rinsin</span></label>{% endif %}
-<div class="action-row"><button type="submit" class="btn btn--primary">Yuklash</button><a class="btn btn--secondary" href="{% url 'projects:detail' project.pk %}#{% if type == 'image' %}tab-images{% else %}tab-documents{% endif %}">Bekor qilish</a></div>
+<label class="toggle-row form-group">{{ form.is_public }}<span>QR pasportda mijozga ko'rinsin</span></label>
+<div class="action-row"><button type="submit" class="btn btn--primary">Yuklash</button><a class="btn btn--secondary" href="{% url 'projects:detail' project.pk %}">Bekor qilish</a></div>
 </form></div>
+{% endif %}
 {% endblock %}
-

@@ -21,15 +21,17 @@ def validate_file_size(file):
 
 class ProjectImage(models.Model):
     class Category(models.TextChoices):
+        ROOM = "room", "Xonalar rasmlari"
         FLOOR_PLAN = "floor_plan", "Qavat rejasi"
         CIRCUIT = "circuit", "Elektr zanjiri / sxema"
         BEFORE = "before", "Ishdan oldin"
         PROCESS = "process", "Jarayon"
         CABLES = "cables", "Kabel yo'nalishlari"
-        PANEL = "panel", "Elektr shit"
-        DEVICE = "device", "Elektr qurilma"
+        CONNECTIONS = "connections", "Simlar ulangan joylar"
+        PANEL = "panel", "Elektr shitlari"
+        DEVICE = "device", "Elektr nuqtalari"
         FINAL = "final", "Yakuniy natija"
-        OTHER = "other", "Boshqa"
+        OTHER = "other", "Boshqa loyiha rasmlari"
 
     project = models.ForeignKey("projects.Project", on_delete=models.CASCADE, related_name="images")
     image = models.ImageField(upload_to=image_upload_path, validators=[validate_file_size])
@@ -38,11 +40,17 @@ class ProjectImage(models.Model):
     title = models.CharField(max_length=150, blank=True)
     category = models.CharField(max_length=20, choices=Category.choices, default=Category.OTHER)
     description = models.CharField(max_length=255, blank=True)
+    content_sha256 = models.CharField(max_length=64, blank=True, default="")
+    upload_token = models.UUIDField(null=True, blank=True)
     uploaded_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True)
     uploaded_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         ordering = ["uploaded_at", "pk"]
+        constraints = [
+            models.UniqueConstraint(fields=["project", "content_sha256"], condition=~models.Q(content_sha256=""), name="unique_project_image_content"),
+            models.UniqueConstraint(fields=["project", "upload_token"], name="unique_project_image_upload"),
+        ]
 
     @property
     def caption(self):
@@ -54,9 +62,18 @@ class ProjectDocument(models.Model):
     title = models.CharField(max_length=200)
     file = models.FileField(upload_to=document_upload_path, validators=[validate_file_size])
     description = models.TextField(blank=True)
+    category = models.CharField(max_length=20, choices=ProjectImage.Category.choices, default=ProjectImage.Category.OTHER)
+    content_sha256 = models.CharField(max_length=64, blank=True, default="")
+    upload_token = models.UUIDField(null=True, blank=True)
     is_public = models.BooleanField(default=False)
     uploaded_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True)
     uploaded_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=["project", "content_sha256"], condition=~models.Q(content_sha256=""), name="unique_project_document_content"),
+            models.UniqueConstraint(fields=["project", "upload_token"], name="unique_project_document_upload"),
+        ]
 
     @property
     def is_video(self):

@@ -1,0 +1,12 @@
+<section class="media-upload-actions" aria-labelledby="media-actions-heading">
+    <div><h2 id="media-actions-heading">Rasm va video qo'shish</h2><p class="muted">Kerakli bo'limni tanlang. Har bir faylga alohida nom va ixtiyoriy izoh kiritiladi.</p></div>
+    <div class="media-action-grid">
+        <a class="media-action-card" href="{% url 'documents:image_upload' project.pk %}?category=room#general-uploads"><i data-lucide="house" aria-hidden="true"></i><span><strong>Xonalar rasmlari</strong><small>Xonalar va ish jarayoni</small></span><i data-lucide="plus" aria-hidden="true"></i></a>
+        <a class="media-action-card" href="{% url 'documents:image_upload' project.pk %}?category=cables#general-uploads"><i data-lucide="cable" aria-hidden="true"></i><span><strong>Kabel yo'nalishlari</strong><small>Kabel o'tgan joylar</small></span><i data-lucide="plus" aria-hidden="true"></i></a>
+        <a class="media-action-card" href="{% url 'documents:image_upload' project.pk %}?category=connections#general-uploads"><i data-lucide="network" aria-hidden="true"></i><span><strong>Simlar ulangan joylar</strong><small>Ulanish qutilari va birikmalar</small></span><i data-lucide="plus" aria-hidden="true"></i></a>
+        <a class="media-action-card" href="{% url 'documents:image_upload' project.pk %}?category=device#general-uploads"><i data-lucide="plug" aria-hidden="true"></i><span><strong>Elektr nuqtalari</strong><small>Rozetka, kalit va yoritish</small></span><i data-lucide="plus" aria-hidden="true"></i></a>
+        <a class="media-action-card media-action-card--panel" href="{% url 'documents:image_upload' project.pk %}#panel-uploads"><i data-lucide="circuit-board" aria-hidden="true"></i><span><strong>Elektr shitlari</strong><small>Shit nomi va uning rasmlari</small></span><i data-lucide="plus" aria-hidden="true"></i></a>
+        <a class="media-action-card" href="{% url 'documents:image_upload' project.pk %}?media=video#general-uploads"><i data-lucide="video" aria-hidden="true"></i><span><strong>Video yuklash</strong><small>MP4 yoki WebM video</small></span><i data-lucide="plus" aria-hidden="true"></i></a>
+        <a class="media-action-card" href="{% url 'documents:image_upload' project.pk %}?category=other#general-uploads"><i data-lucide="images" aria-hidden="true"></i><span><strong>Boshqa loyiha rasmlari</strong><small>Qutilar va boshqa tafsilotlar</small></span><i data-lucide="plus" aria-hidden="true"></i></a>
+    </div>
+</section>

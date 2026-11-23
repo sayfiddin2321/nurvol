@@ -1,24 +1,22 @@
 {% extends "base.html" %}
 {% load static %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'css/media.css' %}?v=4">{% endblock %}
 {% block title %}{{ project.name }} — VoltPass{% endblock %}
 {% block page_title %}{{ project.name }}{% endblock %}
 {% block body_class %}project-detail-body{% endblock %}
-{% block extra_js %}<script src="{% static 'js/qr.js' %}?v=4" defer></script>{% endblock %}
+{% block extra_js %}<script src="{% static 'js/qr.js' %}?v=4" defer></script><script src="{% static 'js/media-gallery.js' %}?v=1" defer></script>{% endblock %}
 {% block content %}
 <div class="project-detail-page">
 <header class="workspace-heading">
     <div><p class="eyebrow">OBYEKT</p><h1>{{ project.name }}</h1>{% if project.address %}<p class="muted">{{ project.address }}</p>{% endif %}</div>
     {% if can_edit %}<div class="action-row">
-        <a class="btn btn--primary" href="{% url 'documents:image_upload' project.pk %}"><i data-lucide="image-plus"></i>Rasm yuklash</a>
+        <a class="btn btn--primary" href="{% url 'documents:image_upload' project.pk %}"><i data-lucide="cloud-upload"></i>Rasm va video yuklash</a>
         <a class="btn btn--secondary" href="{% url 'projects:edit' project.pk %}">Tahrirlash</a>
     </div>{% endif %}
 </header>
 {% if project.description %}<div class="passport-description">{{ project.description|linebreaks }}</div>{% endif %}
-<section class="passport-section" id="tab-images">
-    <div class="section-heading"><h2>Rasmlar</h2><span class="muted">{{ gallery_page.paginator.count }} ta rasm</span></div>
-    {% include "documents/_gallery.html" %}
-    {% if not gallery_page.object_list %}<div class="workspace-empty"><i data-lucide="images"></i><h3>Hali rasmlar yo'q</h3><p>Telefondan yoki kompyuterdan bir nechta rasm yuklang.</p>{% if can_edit %}<a class="btn btn--primary" href="{% url 'documents:image_upload' project.pk %}">Rasm yuklash</a>{% endif %}</div>{% endif %}
-</section>
+{% if can_edit %}{% include 'documents/_upload_actions.html' %}{% endif %}
+{% include "documents/_media_sections.html" %}
 {% if can_edit %}
 <section class="passport-section" id="qr" aria-labelledby="qr-heading">
     <h2 id="qr-heading">QR orqali ulashish</h2>

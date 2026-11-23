@@ -25,6 +25,7 @@ from apps.accounts.models import User
 from apps.accounts.models import PaymentSettings
 from apps.accounts.decorators import head_electrician_required
 from apps.documents.models import ProjectImage
+from apps.documents.gallery import project_gallery_context
 from apps.electricians.models import ElectricianProfile
 from apps.qrcodes.models import QRScanLog
 from apps.qrcodes.services import build_qr_url, get_or_create_building_qr, generate_qr_png_bytes
@@ -227,7 +228,7 @@ def project_detail_view(request, pk):
         "building_qr": building_qr,
         "share_url": build_qr_url(building_qr.token, request) if building_qr else "",
         "images": images,
-        "gallery_page": Paginator(images, 24).get_page(request.GET.get("photos")),
+        **project_gallery_context(project, request, can_edit),
     }
     return render(request, "projects/detail.html", context)
 

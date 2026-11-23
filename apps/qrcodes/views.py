@@ -6,12 +6,12 @@ from django.contrib import messages
 from django.http import HttpResponse, HttpResponseForbidden
 from django.shortcuts import render, redirect, get_object_or_404
 from django.db.models import Count
-from django.core.paginator import Paginator
 from django.views.decorators.http import require_http_methods, require_POST
 
 from apps.projects.models import Project
 from apps.projects.services import user_can_edit_project
 from apps.electrical.models import ElectricalPanel
+from apps.documents.gallery import project_gallery_context
 from .models import QRCode, QRScanLog
 from .services import generate_qr_png_bytes, get_or_create_building_qr, get_or_create_panel_qr
 
@@ -158,6 +158,6 @@ def public_qr_view(request, token):
         "qr": qr,
         "project": project,
         "electrician_profile": getattr(project.electrician, "electrician_profile", None),
-        "gallery_page": Paginator(project.images.order_by("uploaded_at", "pk"), 24).get_page(request.GET.get("photos")),
+        **project_gallery_context(project, request, is_owner_or_admin),
     }
     return render(request, "public/qr_project.html", context)

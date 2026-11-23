@@ -1,0 +1,8 @@
+{% extends "base.html" %}
+{% block title %}Faylni o'chirish — VoltPass{% endblock %}
+{% block page_title %}{{ project.name }} / O'chirish{% endblock %}
+{% block content %}
+<div class="simple-form-page"><h1>Faylni o'chirasizmi?</h1><form method="post" class="card simple-form" action="{{ delete_url }}">{% csrf_token %}
+<p><strong>{{ item_name }}</strong></p><p class="muted">Bu fayl loyihadan butunlay o'chiriladi. Ushbu amalni bekor qilib bo'lmaydi.</p>
+<div class="action-row"><a class="btn btn--secondary" href="{% url 'projects:detail' project.pk %}#{{ anchor }}">Bekor qilish</a><button type="submit" class="btn btn--primary">Ha, o'chirish</button></div>
+</form></div>{% endblock %}

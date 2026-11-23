@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block title %}Videoni tahrirlash — VoltPass{% endblock %}
+{% block page_title %}{{ project.name }} / Video{% endblock %}
+{% block content %}
+<div class="simple-form-page"><h1>Video ma'lumotlari</h1>
+<video class="edit-image-preview" controls preload="metadata" playsinline src="{% url 'documents:document_preview' video.pk %}"></video>
+<form method="post" class="card simple-form">{% csrf_token %}{{ form.non_field_errors }}
+{% for field in form %}<div class="form-group"><label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>{{ field }}{{ field.errors }}</div>{% endfor %}
+<div class="action-row"><button class="btn btn--primary" type="submit">Saqlash</button><a class="btn btn--secondary" href="{% url 'projects:detail' project.pk %}#{% if video.category == 'panel' %}tab-panels{% else %}tab-images{% endif %}">Bekor qilish</a></div>
+</form></div>{% endblock %}

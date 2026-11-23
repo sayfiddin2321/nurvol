@@ -1,0 +1,6 @@
+{% if videos %}<div class="passport-gallery media-video-gallery" aria-label="Videolar galereyasi">
+{% for video in videos %}<figure class="passport-gallery__item">
+<video class="gallery-video" controls preload="metadata" playsinline src="{% url 'documents:document_preview' video.pk %}" aria-label="{{ video.title }}">Brauzeringiz videoni ko'rsata olmaydi. <a href="{% url 'documents:document_download' video.pk %}">Videoni yuklab olish</a></video>
+<figcaption><div class="media-caption-labels"><span class="media-type-label">VIDEO</span><span class="media-category-label">{{ video.get_category_display }}</span></div><strong class="media-saved-title">{{ video.title }}</strong>{% if video.description %}<p>{{ video.description }}</p>{% endif %}
+{% if can_edit %}<div class="gallery-item-actions"><a class="btn btn--ghost btn--sm" href="{% url 'documents:document_edit' video.pk %}">Tahrirlash</a><a class="btn btn--ghost btn--sm field-error" href="{% url 'documents:document_delete_confirm' video.pk %}" data-media-delete data-delete-action="{% url 'documents:document_delete' video.pk %}" data-delete-name="{{ video.title }}">O'chirish</a></div>{% endif %}</figcaption>
+</figure>{% endfor %}</div>{% endif %}
